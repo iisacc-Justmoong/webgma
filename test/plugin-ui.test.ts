@@ -48,6 +48,28 @@ describe("plugin UI", () => {
     expect(uiHtml).toContain("CSS File");
   });
 
+  it("contains resize controls and English-only interface copy", () => {
+    const uiHtml = readFileSync(
+      resolve(process.cwd(), "src/plugin/ui.html"),
+      "utf8"
+    );
+
+    expect(uiHtml).toContain('id="resize-edge-right"');
+    expect(uiHtml).toContain('id="resize-edge-bottom"');
+    expect(uiHtml).toContain('id="resize-corner"');
+    expect(uiHtml).toContain('startResizeDrag("right"');
+    expect(uiHtml).toContain('startResizeDrag("bottom"');
+    expect(uiHtml).toContain('startResizeDrag("corner"');
+    expect(uiHtml).toContain('type: "resize-ui"');
+    expect(uiHtml).toContain("syncUiToContentSize()");
+    expect(uiHtml).toContain("measureContentSize()");
+    expect(uiHtml).toContain("requestAnimationFrame");
+    expect(uiHtml).not.toContain('class="secondary size-preset"');
+    expect(uiHtml).not.toContain("window-actions");
+    expect(uiHtml).not.toContain("Window Size");
+    expect(uiHtml).not.toMatch(/[가-힣]/);
+  });
+
   it("does not include sample controls or preview sections", () => {
     const uiHtml = readFileSync(
       resolve(process.cwd(), "src/plugin/ui.html"),

@@ -17,6 +17,7 @@
         margin: 0;
         background: #0f172a;
         color: #e2e8f0;
+        overflow: hidden;
       }
 
       main {
@@ -195,10 +196,85 @@
         color: #e2e8f0;
       }
 
+      .resize-edge {
+        position: fixed;
+        z-index: 20;
+        background: transparent;
+      }
+
+      .resize-edge-right {
+        top: 0;
+        right: 0;
+        width: 14px;
+        height: 100vh;
+        cursor: ew-resize;
+      }
+
+      .resize-edge-bottom {
+        left: 0;
+        bottom: 0;
+        width: 100vw;
+        height: 14px;
+        cursor: ns-resize;
+      }
+
+      .resize-corner {
+        position: fixed;
+        right: 0;
+        bottom: 0;
+        z-index: 21;
+        width: 28px;
+        height: 28px;
+        border-top-left-radius: 12px;
+        background:
+          linear-gradient(
+            135deg,
+            transparent 0 42%,
+            rgba(226, 232, 240, 0.35) 42% 50%,
+            transparent 50% 60%,
+            rgba(226, 232, 240, 0.55) 60% 68%,
+            transparent 68% 78%,
+            rgba(226, 232, 240, 0.8) 78% 86%,
+            transparent 86% 100%
+          ),
+          rgba(15, 23, 42, 0.82);
+        border-left: 1px solid rgba(148, 163, 184, 0.24);
+        border-top: 1px solid rgba(148, 163, 184, 0.24);
+        cursor: nwse-resize;
+      }
+
+      body.is-resizing,
+      body.is-resizing * {
+        user-select: none;
+      }
+
+      body.is-resizing[data-resize-direction="right"],
+      body.is-resizing[data-resize-direction="right"] * {
+        cursor: ew-resize;
+      }
+
+      body.is-resizing[data-resize-direction="bottom"],
+      body.is-resizing[data-resize-direction="bottom"] * {
+        cursor: ns-resize;
+      }
+
+      body.is-resizing[data-resize-direction="corner"],
+      body.is-resizing[data-resize-direction="corner"] * {
+        cursor: nwse-resize;
+      }
+
       @media (max-width: 900px) {
         .mode-options,
         .panes {
           grid-template-columns: 1fr;
+        }
+
+        .resize-edge-right {
+          width: 12px;
+        }
+
+        .resize-edge-bottom {
+          height: 12px;
         }
       }
     </style>
@@ -208,8 +284,9 @@
       <section class="header">
         <h1>Webgma</h1>
         <p>
-          HTML과 CSS를 정적으로 분석해 피그마 디자인을 생성합니다.
-          샘플 입력이나 브라우저 프리뷰 없이 실제 입력만 받아 변환합니다.
+          Convert HTML and CSS into a starter Figma design through static
+          analysis. The plugin accepts real files or code input without sample
+          loaders or browser previews.
         </p>
       </section>
 
@@ -226,8 +303,8 @@
             <div>
               <strong>Mode 1 · File Input</strong>
               <span>
-                HTML 파일과 CSS 파일을 인자로 받습니다. 선택된 파일의
-                내용이 플러그인에서 직접 정적 분석됩니다.
+                Accept one HTML file and one CSS file. The selected file
+                contents are analyzed directly inside the plugin runtime.
               </span>
             </div>
           </label>
@@ -242,7 +319,7 @@
             <div>
               <strong>Mode 2 · Code Input</strong>
               <span>
-                HTML 코드와 CSS 코드를 각각 텍스트 입력으로 받습니다.
+                Accept HTML code and CSS code through two dedicated editors.
               </span>
             </div>
           </label>
@@ -259,8 +336,8 @@
           </div>
           <div class="pane-copy">
             <p>
-              HTML 소스 패널입니다. 현재 모드에 따라 파일 입력 또는 코드
-              입력이 노출됩니다.
+              This panel collects the HTML source. It switches between file
+              input and code input based on the active mode.
             </p>
           </div>
           <div class="mode-panel file-input" id="html-file-panel" hidden>
@@ -289,8 +366,8 @@
           </div>
           <div class="pane-copy">
             <p>
-              CSS 소스 패널입니다. 현재 모드에 따라 파일 입력 또는 코드
-              입력이 노출됩니다.
+              This panel collects the CSS source. It switches between file
+              input and code input based on the active mode.
             </p>
           </div>
           <div class="mode-panel file-input" id="css-file-panel" hidden>
@@ -328,11 +405,35 @@
       </section>
     </main>
 
+    <div
+      id="resize-edge-right"
+      class="resize-edge resize-edge-right"
+      aria-hidden="true"
+      title="Drag to resize width"
+    ></div>
+    <div
+      id="resize-edge-bottom"
+      class="resize-edge resize-edge-bottom"
+      aria-hidden="true"
+      title="Drag to resize height"
+    ></div>
+    <div
+      id="resize-corner"
+      class="resize-corner"
+      aria-hidden="true"
+      title="Drag to resize width and height"
+    ></div>
+
     <script>
+      const MIN_UI_WIDTH = 720;
+      const MIN_UI_HEIGHT = 560;
+      const MAX_UI_WIDTH = 1600;
+      const MAX_UI_HEIGHT = 1400;
       const htmlInput = document.getElementById("html-input");
       const cssInput = document.getElementById("css-input");
       const htmlFileInput = document.getElementById("html-file");
       const cssFileInput = document.getElementById("css-file");
+      const mainElement = document.querySelector("main");
       const htmlFilePanel = document.getElementById("html-file-panel");
       const cssFilePanel = document.getElementById("css-file-panel");
       const htmlCodePanel = document.getElementById("html-code-panel");
@@ -344,9 +445,16 @@
       const statusTitle = document.getElementById("status-title");
       const statusDescription = document.getElementById("status-description");
       const modeDescription = document.getElementById("mode-description");
+      const resizeRightEdge = document.getElementById("resize-edge-right");
+      const resizeBottomEdge = document.getElementById("resize-edge-bottom");
+      const resizeCorner = document.getElementById("resize-corner");
       const inputModeRadios = Array.from(
         document.querySelectorAll('input[name="input-mode"]')
       );
+      let currentUiWidth = window.innerWidth;
+      let currentUiHeight = window.innerHeight;
+      let resizeDragState = null;
+      let userHasResizedUi = false;
 
       convertButton.addEventListener("click", async () => {
         try {
@@ -393,6 +501,43 @@
         radio.addEventListener("change", () => {
           syncInputModeUi();
         });
+      });
+
+      resizeRightEdge.addEventListener("pointerdown", (event) => {
+        startResizeDrag("right", event);
+      });
+
+      resizeBottomEdge.addEventListener("pointerdown", (event) => {
+        startResizeDrag("bottom", event);
+      });
+
+      resizeCorner.addEventListener("pointerdown", (event) => {
+        startResizeDrag("corner", event);
+      });
+
+      window.addEventListener("pointermove", (event) => {
+        if (!resizeDragState) {
+          return;
+        }
+
+        const nextWidth =
+          resizeDragState.direction === "bottom"
+            ? resizeDragState.width
+            : resizeDragState.width + event.clientX - resizeDragState.startX;
+        const nextHeight =
+          resizeDragState.direction === "right"
+            ? resizeDragState.height
+            : resizeDragState.height + event.clientY - resizeDragState.startY;
+
+        requestUiResize(nextWidth, nextHeight);
+      });
+
+      window.addEventListener("pointerup", stopResizeDrag);
+      window.addEventListener("pointercancel", stopResizeDrag);
+      window.addEventListener("blur", stopResizeDrag);
+      window.addEventListener("resize", () => {
+        currentUiWidth = window.innerWidth;
+        currentUiHeight = window.innerHeight;
       });
 
       window.onmessage = (event) => {
@@ -486,6 +631,7 @@
         }
 
         setStatus("Ready", waitingMessage);
+        syncUiToContentSize();
       }
 
       function updateFileMeta(sourceType) {
@@ -501,6 +647,74 @@
       function setStatus(title, description) {
         statusTitle.textContent = title;
         statusDescription.textContent = description;
+      }
+
+      function startResizeDrag(direction, event) {
+        event.preventDefault();
+        userHasResizedUi = true;
+        resizeDragState = {
+          direction,
+          startX: event.clientX,
+          startY: event.clientY,
+          width: currentUiWidth,
+          height: currentUiHeight
+        };
+        document.body.dataset.resizeDirection = direction;
+        document.body.classList.add("is-resizing");
+      }
+
+      function requestUiResize(width, height) {
+        const nextWidth = clampDimension(width, MIN_UI_WIDTH, MAX_UI_WIDTH);
+        const nextHeight = clampDimension(height, MIN_UI_HEIGHT, MAX_UI_HEIGHT);
+
+        currentUiWidth = nextWidth;
+        currentUiHeight = nextHeight;
+
+        parent.postMessage(
+          {
+            pluginMessage: {
+              type: "resize-ui",
+              payload: {
+                width: nextWidth,
+                height: nextHeight
+              }
+            }
+          },
+          "*"
+        );
+      }
+
+      function stopResizeDrag() {
+        resizeDragState = null;
+        document.body.classList.remove("is-resizing");
+        delete document.body.dataset.resizeDirection;
+      }
+
+      function clampDimension(value, minimum, maximum) {
+        return Math.min(Math.max(Math.round(value), minimum), maximum);
+      }
+
+      function syncUiToContentSize() {
+        if (userHasResizedUi) {
+          return;
+        }
+
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            const contentSize = measureContentSize();
+            requestUiResize(contentSize.width, contentSize.height);
+          });
+        });
+      }
+
+      function measureContentSize() {
+        const mainWidth = mainElement ? mainElement.scrollWidth : 0;
+        const mainHeight = mainElement ? mainElement.scrollHeight : 0;
+
+        return {
+          width: Math.max(mainWidth, document.documentElement.scrollWidth),
+          height: Math.max(mainHeight, document.documentElement.scrollHeight)
+        };
       }
 
       updateFileMeta("html");

@@ -21,6 +21,40 @@ describe("convertHtmlCssToDesign", () => {
     expect(result.warnings[0]).toMatch(/image assets/i);
   });
 
+  it("surfaces flattening diagnostics when CSS is forced into a single inline HTML", () => {
+    const result = convertHtmlCssToDesign({
+      html: {
+        content: '<div class="card">Hello</div>',
+        mode: "code"
+      },
+      css: {
+        content: `
+          @media (min-width: 700px) {
+            .card { color: #ff0000; }
+          }
+
+          .card:hover {
+            color: #00ff00;
+          }
+
+          .card {
+            padding: 16px;
+          }
+        `,
+        mode: "code"
+      }
+    });
+
+    expect(result.mergedHtml).toMatch(/padding:\s*16px/i);
+    expect(result.mergedHtml).toMatch(/color:\s*#00ff00/i);
+    expect(result.warnings).toContain(
+      "Conditional at-rule flattened during CSS inlining: @media."
+    );
+    expect(result.warnings).toContain(
+      "State selector flattened onto the base element during CSS inlining: .card:hover."
+    );
+  });
+
   it("validates missing HTML and CSS content", () => {
     expect(() =>
       convertHtmlCssToDesign({

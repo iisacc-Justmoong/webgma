@@ -39,11 +39,13 @@ manifest.json
 The current static-analysis scaffold already handles:
 
 - tag, class, and id based CSS inlining
+- extraction of embedded `<style>` blocks and removal of stylesheet `<link>` dependencies from the merged output
 - flex direction, gap, padding, width, height
 - background color, opacity, border radius
 - mixed inline text fragments such as `Hello <strong>world</strong>`
 - `<img>` and `background-image` based image assets
 - basic text size, weight, line height, alignment, and color
+- forced flattening of conditional rules and state selectors into inline HTML, with explicit warnings when fidelity is reduced
 
 The next implementation phase should expand selector coverage, improve cascade fidelity, and harden layout parity with browser rendering.
 
@@ -57,11 +59,13 @@ The next implementation phase should expand selector coverage, improve cascade f
 
 - the plugin no longer includes sample input helpers
 - the plugin no longer includes browser or merged-output preview features
+- the plugin UI uses English-only copy
+- the plugin measures content and applies an initial UI resize before showing the window
 - the manifest permits remote image fetches so referenced image assets can be rendered
 - the plugin bundle is emitted with an `es2017` target so Figma code evaluation does not fail on `??`, optional chaining, or object spread syntax
 - the test suite compiles a temporary plugin bundle and fails if unsupported syntax survives bundling
 - the root manifest is for development import, while `build/release/manifest.json` is generated for distribution packaging
-- unsupported CSS should be added in the shared static-analysis layer and renderer, not bypassed in the UI
+- CSS is forced into inline HTML whenever possible, and flattening diagnostics are surfaced when selector or rule fidelity is reduced
 
 ## Deployment
 

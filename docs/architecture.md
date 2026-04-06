@@ -18,10 +18,13 @@ The product goal is:
   - provides one global input mode switch
   - `Mode 1` accepts HTML and CSS files
   - `Mode 2` accepts HTML and CSS code
+  - keeps all visible UI copy in English
+  - measures the rendered content and requests an initial hug-sized UI before first display
   - intentionally excludes sample loaders and preview UI
 - `src/plugin/code.ts`
   - owns the Figma plugin lifecycle
   - runs static HTML/CSS analysis directly in the plugin runtime
+  - keeps the UI hidden until the first size measurement arrives, then shows it
   - renders the resulting design plan on the current page
 - `src/plugin/render-design-plan.ts`
   - maps layout hints to Figma frames and text layers
@@ -40,6 +43,9 @@ The product goal is:
   - runs the end-to-end static conversion flow
 - `src/shared/services/inline-html-service.ts`
   - applies CSS declarations to HTML through static selector matching
+  - extracts embedded `<style>` blocks and removes stylesheet links so the merged HTML stays self-contained
+  - flattens conditional rules and state selectors onto base elements when forcing a single inline HTML output
+  - reports merge warnings when selector or rule fidelity is reduced
 - `src/shared/services/design-plan-service.ts`
   - parses merged inline HTML
   - produces a normalized tree of frames and text nodes
@@ -63,4 +69,4 @@ The product goal is:
 2. Improve CSS cascade fidelity for conflicting selectors and inheritance.
 3. Introduce a stable node identity strategy so repeated imports can update existing nodes.
 4. Add fixture-based regression tests for larger HTML/CSS cases.
-5. Report unsupported CSS explicitly instead of silently dropping it.
+5. Expand warning coverage and fallback handling for more unsupported CSS patterns.
