@@ -1,6 +1,7 @@
 {
   "name": "Webgma",
   "api": "1.0.0",
+  "documentAccess": "dynamic-page",
   "main": "build/plugin/code.js",
   "ui": "build/plugin/ui.html",
   "networkAccess": {

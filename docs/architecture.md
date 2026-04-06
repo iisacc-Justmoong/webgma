@@ -26,6 +26,12 @@ The product goal is:
 - `src/plugin/render-design-plan.ts`
   - maps layout hints to Figma frames and text layers
   - applies the current auto-layout-related CSS subset
+- `scripts/build-plugin.mjs`
+  - bundles the plugin into `build/`
+  - targets `es2017` so the generated code stays compatible with Figma's plugin code evaluator
+- `scripts/plugin-build-config.mjs`
+  - centralizes plugin bundling options shared by the build script and regression tests
+  - prevents config drift between local packaging and compatibility checks
 
 ### Shared analysis side
 
@@ -48,6 +54,8 @@ The product goal is:
 - static analysis belongs in a shared layer so the plugin owns conversion directly
 - the plugin stays focused on Figma-specific node creation after analysis
 - the UI stays minimal and only collects real user input
+- deployment packaging is isolated in `scripts/prepare-release.mjs` so release manifests can differ from local development manifests only by asset paths
+- build compatibility checks compile the plugin into a temporary bundle during tests so unsupported syntax regressions such as nullish coalescing, optional chaining, and object spread are caught before release
 
 ## Immediate next steps
 

@@ -24,8 +24,11 @@ src/
     services/
 docs/
   architecture.md
+  publishing.md
 scripts/
   build-plugin.mjs
+  plugin-build-config.mjs
+  prepare-release.mjs
 test/
   *.test.ts
 manifest.json
@@ -47,6 +50,7 @@ The next implementation phase should expand selector coverage, improve cascade f
 ## Scripts
 
 - `npm run build`: bundle the plugin into `build/`
+- `npm run prepare:release`: generate `build/release/` with a release manifest and packaged plugin files
 - `npm test`: run the unit and interface tests
 
 ## Notes
@@ -54,4 +58,11 @@ The next implementation phase should expand selector coverage, improve cascade f
 - the plugin no longer includes sample input helpers
 - the plugin no longer includes browser or merged-output preview features
 - the manifest permits remote image fetches so referenced image assets can be rendered
+- the plugin bundle is emitted with an `es2017` target so Figma code evaluation does not fail on `??`, optional chaining, or object spread syntax
+- the test suite compiles a temporary plugin bundle and fails if unsupported syntax survives bundling
+- the root manifest is for development import, while `build/release/manifest.json` is generated for distribution packaging
 - unsupported CSS should be added in the shared static-analysis layer and renderer, not bypassed in the UI
+
+## Deployment
+
+Figma publish preparation is documented in [publishing.md](/Volumes/Storage/Workspace/Product/Webgma/docs/publishing.md). The current setup aligns the manifest with Figma deployment requirements and prepares a packaged release folder without requiring manual path rewrites.
