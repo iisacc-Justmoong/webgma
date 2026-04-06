@@ -55,6 +55,25 @@ describe("convertHtmlCssToDesign", () => {
     );
   });
 
+  it("parses escaped HTML input as markup instead of a single text node", () => {
+    const result = convertHtmlCssToDesign({
+      html: {
+        content:
+          '&lt;section class="hero"&gt;&lt;h1&gt;Hello&lt;/h1&gt;&lt;/section&gt;',
+        mode: "code"
+      },
+      css: {
+        content:
+          ".hero { display: flex; padding: 24px; } h1 { font-size: 28px; }",
+        mode: "code"
+      }
+    });
+
+    expect(result.mergedHtml).toContain('<section class="hero"');
+    expect(result.designPlan.root.children[0]?.kind).toBe("FRAME");
+    expect(result.designPlan.root.children[0]?.children[0]?.kind).toBe("TEXT");
+  });
+
   it("validates missing HTML and CSS content", () => {
     expect(() =>
       convertHtmlCssToDesign({

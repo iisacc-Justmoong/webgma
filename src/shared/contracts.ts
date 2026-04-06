@@ -35,14 +35,39 @@ export interface PaddingHints {
   left: number;
 }
 
+export interface InsetHints {
+  top?: number;
+  right?: number;
+  bottom?: number;
+  left?: number;
+}
+
 export interface LayoutHints {
   mode: "NONE" | "VERTICAL" | "HORIZONTAL";
   gap: number;
+  crossGap: number;
+  wrap: "NO_WRAP" | "WRAP";
   padding: PaddingHints;
   width?: number;
   height?: number;
+  minWidth?: number;
+  maxWidth?: number;
+  minHeight?: number;
+  maxHeight?: number;
+  clipsContent: boolean;
   justifyContent: "FLEX_START" | "CENTER" | "FLEX_END" | "SPACE_BETWEEN";
   alignItems: "FLEX_START" | "CENTER" | "FLEX_END" | "STRETCH";
+}
+
+export interface ItemLayoutHints {
+  margin: PaddingHints;
+  alignSelf: "AUTO" | "FLEX_START" | "CENTER" | "FLEX_END" | "STRETCH";
+  flexGrow: number;
+  flexShrink: number;
+  flexBasis?: number;
+  position: "AUTO" | "ABSOLUTE";
+  inset: InsetHints;
+  zIndex?: number;
 }
 
 export interface ColorHint {
@@ -59,9 +84,24 @@ export interface ImageHint {
   sourceType: "DATA" | "URL";
 }
 
+export interface StrokeHint {
+  color: ColorHint;
+  weight: number;
+}
+
+export interface ShadowHint {
+  blur: number;
+  color: ColorHint;
+  offsetX: number;
+  offsetY: number;
+  type: "DROP_SHADOW" | "INNER_SHADOW";
+}
+
 export interface AppearanceHints {
   fills: ColorHint[];
   image?: ImageHint;
+  shadows: ShadowHint[];
+  strokes: StrokeHint[];
   cornerRadius?: number;
   opacity?: number;
 }
@@ -97,6 +137,7 @@ export interface DesignPlanNode {
   textContent?: string;
   styles: StyleMap;
   layout: LayoutHints;
+  item: ItemLayoutHints;
   appearance: AppearanceHints;
   text?: TextHints;
   children: DesignPlanNode[];

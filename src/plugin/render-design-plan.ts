@@ -5,6 +5,7 @@ import type {
   FontStyleHint,
   ImageHint,
   LayoutHints,
+  ShadowHint,
   TextSegmentHints
 } from "../shared/contracts.js";
 
@@ -54,20 +55,14 @@ async function createSceneNode(node: DesignPlanNode): Promise<SceneNode> {
 
   const frame = figma.createFrame();
   frame.name = node.name;
-  frame.cornerRadius = node.appearance.cornerRadius ?? 0;
-  frame.opacity = node.appearance.opacity ?? 1;
+  applyNodeDecorations(frame, node.appearance);
 
   applyFrameLayout(frame, node.layout);
   await applyImageAwareFills(frame, node.appearance.fills, node.appearance.image);
 
   for (const childNode of node.children) {
     const sceneChild = await createSceneNode(childNode);
-
-    if ("layoutAlign" in sceneChild && node.layout.alignItems === "STRETCH") {
-      sceneChild.layoutAlign = "STRETCH";
-    }
-
-    frame.appendChild(sceneChild);
+    appendSceneChild(frame, sceneChild, childNode, node.layout);
   }
 
   return frame;
@@ -130,10 +125,9 @@ async function createImageNode(node: DesignPlanNode): Promise<FrameNode> {
 
   frame.name = node.name;
   frame.layoutMode = "NONE";
-  frame.cornerRadius = node.appearance.cornerRadius ?? 0;
-  frame.opacity = node.appearance.opacity ?? 1;
   frame.clipsContent = true;
   frame.resize(width, height);
+  applyNodeDecorations(frame, node.appearance);
 
   if (imagePaint) {
     frame.fills = [imagePaint];
@@ -150,11 +144,14 @@ async function createImageNode(node: DesignPlanNode): Promise<FrameNode> {
 
 function applyFrameLayout(frame: FrameNode, layout: LayoutHints) {
   frame.layoutMode = layout.mode;
+  frame.layoutWrap = layout.wrap;
   frame.itemSpacing = layout.gap;
+  frame.counterAxisSpacing = layout.wrap === "WRAP" ? layout.crossGap : null;
   frame.paddingTop = layout.padding.top;
   frame.paddingRight = layout.padding.right;
   frame.paddingBottom = layout.padding.bottom;
   frame.paddingLeft = layout.padding.left;
+  frame.clipsContent = layout.clipsContent;
   frame.primaryAxisAlignItems = mapPrimaryAlignment(layout.justifyContent);
   frame.counterAxisAlignItems = mapCounterAlignment(layout.alignItems);
   frame.primaryAxisSizingMode =
@@ -186,6 +183,8 @@ function applyFrameLayout(frame: FrameNode, layout: LayoutHints) {
   if (layout.height) {
     frame.resize(frame.width, layout.height);
   }
+
+  applyMinMaxSizing(frame, layout);
 }
 
 async function applyImageAwareFills(
@@ -345,6 +344,148 @@ async function appendImagePlaceholder(frame: FrameNode, alt: string | undefined)
   frame.appendChild(placeholderText);
 }
 
+function appendSceneChild(
+  parentFrame: FrameNode,
+  sceneChild: SceneNode,
+  childNode: DesignPlanNode,
+  parentLayout: LayoutHints
+) {
+  const parentChild = shouldWrapMargin(childNode)
+    ? wrapSceneChildWithMargin(sceneChild, childNode)
+    : sceneChild;
+
+  parentFrame.appendChild(parentChild);
+
+  if (childNode.item.position === "ABSOLUTE") {
+    applyAbsolutePlacement(sceneChild, childNode, parentLayout);
+    return;
+  }
+
+  applyAutoLayoutChildBehavior(parentChild, childNode, parentLayout);
+
+  if (parentChild !== sceneChild) {
+    applyNestedChildSizing(sceneChild, childNode, parentLayout);
+  }
+}
+
+function shouldWrapMargin(node: DesignPlanNode): boolean {
+  const margin = node.item.margin;
+
+  return (
+    node.item.position !== "ABSOLUTE" &&
+    (margin.top > 0 || margin.right > 0 || margin.bottom > 0 || margin.left > 0)
+  );
+}
+
+function wrapSceneChildWithMargin(
+  sceneChild: SceneNode,
+  childNode: DesignPlanNode
+): FrameNode {
+  const wrapper = figma.createFrame();
+  const margin = childNode.item.margin;
+
+  wrapper.name = `${childNode.name} Margin`;
+  wrapper.layoutMode = "VERTICAL";
+  wrapper.primaryAxisSizingMode = "AUTO";
+  wrapper.counterAxisSizingMode = "AUTO";
+  wrapper.itemSpacing = 0;
+  wrapper.paddingTop = margin.top;
+  wrapper.paddingRight = margin.right;
+  wrapper.paddingBottom = margin.bottom;
+  wrapper.paddingLeft = margin.left;
+  wrapper.fills = [];
+  wrapper.strokes = [];
+  wrapper.effects = [];
+  wrapper.clipsContent = false;
+  wrapper.appendChild(sceneChild);
+
+  return wrapper;
+}
+
+function applyAutoLayoutChildBehavior(
+  sceneChild: SceneNode,
+  childNode: DesignPlanNode,
+  parentLayout: LayoutHints
+) {
+  if ("layoutAlign" in sceneChild) {
+    sceneChild.layoutAlign = mapChildAlignment(
+      childNode.item.alignSelf,
+      parentLayout.alignItems
+    );
+  }
+
+  if ("layoutGrow" in sceneChild) {
+    sceneChild.layoutGrow = childNode.item.flexGrow > 0 ? childNode.item.flexGrow : 0;
+  }
+
+  applyFlexBasis(sceneChild, childNode, parentLayout);
+  applyMinMaxSizing(sceneChild, childNode.layout);
+}
+
+function applyNestedChildSizing(
+  sceneChild: SceneNode,
+  childNode: DesignPlanNode,
+  parentLayout: LayoutHints
+) {
+  if ("layoutAlign" in sceneChild) {
+    sceneChild.layoutAlign = mapChildAlignment(
+      childNode.item.alignSelf,
+      parentLayout.alignItems
+    );
+  }
+
+  applyFlexBasis(sceneChild, childNode, parentLayout);
+  applyMinMaxSizing(sceneChild, childNode.layout);
+}
+
+function applyAbsolutePlacement(
+  sceneChild: SceneNode,
+  childNode: DesignPlanNode,
+  parentLayout: LayoutHints
+) {
+  if ("layoutPositioning" in sceneChild) {
+    sceneChild.layoutPositioning = "ABSOLUTE";
+  }
+
+  const width = "width" in sceneChild ? sceneChild.width : childNode.layout.width;
+  const height = "height" in sceneChild ? sceneChild.height : childNode.layout.height;
+  const inset = childNode.item.inset;
+  const absoluteX = resolveAbsoluteCoordinate(
+    inset.left,
+    inset.right,
+    parentLayout.width,
+    width
+  );
+  const absoluteY = resolveAbsoluteCoordinate(
+    inset.top,
+    inset.bottom,
+    parentLayout.height,
+    height
+  );
+
+  if (absoluteX !== undefined && "x" in sceneChild) {
+    sceneChild.x = absoluteX;
+  }
+
+  if (absoluteY !== undefined && "y" in sceneChild) {
+    sceneChild.y = absoluteY;
+  }
+
+  applyMinMaxSizing(sceneChild, childNode.layout);
+}
+
+function applyNodeDecorations(
+  frame: FrameNode,
+  appearance: DesignPlanNode["appearance"]
+) {
+  frame.cornerRadius = appearance.cornerRadius ?? 0;
+  frame.opacity = appearance.opacity ?? 1;
+  frame.strokes = appearance.strokes.map((stroke) => toSolidPaint(stroke.color));
+  frame.strokeWeight = appearance.strokes[0]?.weight ?? 0;
+  frame.strokeAlign = "INSIDE";
+  frame.effects = appearance.shadows.map(toShadowEffect);
+}
+
 function stringifyFontName(fontName: FontName): string {
   return `${fontName.family}::${fontName.style}`;
 }
@@ -359,6 +500,116 @@ function toSolidPaint(color: ColorHint): SolidPaint {
     },
     opacity: color.opacity
   };
+}
+
+function toShadowEffect(shadow: ShadowHint): DropShadowEffect | InnerShadowEffect {
+  return {
+    type: shadow.type,
+    color: {
+      r: shadow.color.r,
+      g: shadow.color.g,
+      b: shadow.color.b,
+      a: shadow.color.opacity
+    },
+    offset: {
+      x: shadow.offsetX,
+      y: shadow.offsetY
+    },
+    radius: shadow.blur,
+    spread: 0,
+    visible: true,
+    blendMode: "NORMAL"
+  };
+}
+
+function applyFlexBasis(
+  sceneChild: SceneNode,
+  childNode: DesignPlanNode,
+  parentLayout: LayoutHints
+) {
+  const basis = childNode.item.flexBasis;
+
+  if (basis === undefined) {
+    return;
+  }
+
+  if (parentLayout.mode === "HORIZONTAL") {
+    resizeSceneNode(sceneChild, basis, childNode.layout.height);
+    return;
+  }
+
+  if (parentLayout.mode === "VERTICAL") {
+    resizeSceneNode(sceneChild, childNode.layout.width, basis);
+  }
+}
+
+function resizeSceneNode(
+  sceneChild: SceneNode,
+  width: number | undefined,
+  height: number | undefined
+) {
+  if (!("resize" in sceneChild)) {
+    return;
+  }
+
+  const nextWidth = width ?? ("width" in sceneChild ? sceneChild.width : undefined);
+  const nextHeight =
+    height ?? ("height" in sceneChild ? sceneChild.height : undefined);
+
+  if (nextWidth !== undefined && nextHeight !== undefined) {
+    sceneChild.resize(nextWidth, nextHeight);
+  }
+}
+
+function applyMinMaxSizing(
+  sceneChild: SceneNode,
+  layout: LayoutHints
+) {
+  if ("minWidth" in sceneChild) {
+    sceneChild.minWidth = layout.minWidth ?? null;
+    sceneChild.maxWidth = layout.maxWidth ?? null;
+    sceneChild.minHeight = layout.minHeight ?? null;
+    sceneChild.maxHeight = layout.maxHeight ?? null;
+  }
+}
+
+function mapChildAlignment(
+  alignSelf: DesignPlanNode["item"]["alignSelf"],
+  parentAlignItems: LayoutHints["alignItems"]
+): AutoLayoutChildrenMixin["layoutAlign"] {
+  switch (alignSelf) {
+    case "CENTER":
+      return "CENTER";
+    case "FLEX_END":
+      return "MAX";
+    case "STRETCH":
+      return "STRETCH";
+    case "FLEX_START":
+      return "MIN";
+    default:
+      return parentAlignItems === "STRETCH" ? "STRETCH" : "INHERIT";
+  }
+}
+
+function resolveAbsoluteCoordinate(
+  start: number | undefined,
+  end: number | undefined,
+  parentSize: number | undefined,
+  childSize: number | undefined
+): number | undefined {
+  if (start !== undefined) {
+    return start;
+  }
+
+  if (
+    end !== undefined &&
+    parentSize !== undefined &&
+    childSize !== undefined
+  ) {
+    return Math.max(parentSize - childSize - end, 0);
+  }
+
+  return undefined;
 }
 
 function mapPrimaryAlignment(

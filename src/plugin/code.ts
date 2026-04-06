@@ -6,19 +6,17 @@ declare const __PLUGIN_UI_HTML__: string;
 
 const DEFAULT_UI_SIZE = {
   width: 1080,
-  height: 200
+  height: 860
 } as const;
 const MIN_UI_WIDTH = 720;
 const MIN_UI_HEIGHT = 560;
 const MAX_UI_WIDTH = 1600;
 const MAX_UI_HEIGHT = 1400;
-let hasShownUi = false;
 
 figma.showUI(__PLUGIN_UI_HTML__, {
   width: DEFAULT_UI_SIZE.width,
   height: DEFAULT_UI_SIZE.height,
-  themeColors: true,
-  visible: false
+  themeColors: true
 });
 
 figma.ui.onmessage = async (message: unknown) => {
@@ -91,11 +89,6 @@ function resizePluginUi(payload: { width: number; height: number }) {
     clampDimension(payload.width, MIN_UI_WIDTH, MAX_UI_WIDTH),
     clampDimension(payload.height, MIN_UI_HEIGHT, MAX_UI_HEIGHT)
   );
-
-  if (!hasShownUi) {
-    figma.ui.show();
-    hasShownUi = true;
-  }
 }
 
 function clampDimension(value: number, minimum: number, maximum: number) {

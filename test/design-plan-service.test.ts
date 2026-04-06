@@ -89,4 +89,84 @@ describe("createDesignPlan", () => {
     expect(imageNode.layout.width).toBe(64);
     expect(imageNode.layout.height).toBe(64);
   });
+
+  it("derives borders and shadows so frames do not render as empty boxes", () => {
+    const designPlan = createDesignPlan(`
+      <div style="background:white;border:2px solid #cbd5e1;box-shadow:0 12px 24px rgba(15, 23, 42, 0.16);width:280px;height:160px;"></div>
+    `);
+
+    const cardNode = designPlan.root.children[0];
+
+    expect(cardNode.appearance.fills[0]).toMatchObject({
+      r: 1,
+      g: 1,
+      b: 1,
+      opacity: 1
+    });
+    expect(cardNode.appearance.strokes).toHaveLength(1);
+    expect(cardNode.appearance.strokes[0].weight).toBe(2);
+    expect(cardNode.appearance.shadows).toHaveLength(1);
+    expect(cardNode.appearance.shadows[0].type).toBe("DROP_SHADOW");
+    expect(cardNode.appearance.shadows[0].offsetY).toBe(12);
+    expect(cardNode.appearance.shadows[0].blur).toBe(24);
+  });
+
+  it("parses hsl and named colors from inline styles", () => {
+    const designPlan = createDesignPlan(`
+      <div style="background-color:hsl(221, 83%, 53%);border:1px solid white;"></div>
+    `);
+
+    const colorNode = designPlan.root.children[0];
+
+    expect(colorNode.appearance.fills[0].r).toBeCloseTo(0.14, 2);
+    expect(colorNode.appearance.fills[0].g).toBeCloseTo(0.39, 2);
+    expect(colorNode.appearance.fills[0].b).toBeCloseTo(0.92, 2);
+    expect(colorNode.appearance.strokes[0].color).toMatchObject({
+      r: 1,
+      g: 1,
+      b: 1,
+      opacity: 1
+    });
+  });
+
+  it("captures richer box-model hints for flex containers and children", () => {
+    const designPlan = createDesignPlan(`
+      <section style="display:flex;flex-wrap:wrap;gap:16px 24px;overflow:hidden;width:480px;">
+        <article style="margin:8px 12px;flex:1 0 200px;align-self:stretch;"></article>
+      </section>
+    `);
+
+    const containerNode = designPlan.root.children[0];
+    const childNode = containerNode.children[0];
+
+    expect(containerNode.layout.wrap).toBe("WRAP");
+    expect(containerNode.layout.gap).toBe(24);
+    expect(containerNode.layout.crossGap).toBe(16);
+    expect(containerNode.layout.clipsContent).toBe(true);
+    expect(childNode.item.margin.top).toBe(8);
+    expect(childNode.item.margin.left).toBe(12);
+    expect(childNode.item.flexGrow).toBe(1);
+    expect(childNode.item.flexShrink).toBe(0);
+    expect(childNode.item.flexBasis).toBe(200);
+    expect(childNode.item.alignSelf).toBe("STRETCH");
+  });
+
+  it("captures absolute placement and z-index ordering hints", () => {
+    const designPlan = createDesignPlan(`
+      <section style="width:400px;height:300px;position:relative;">
+        <div style="position:absolute;top:24px;right:16px;width:100px;height:80px;z-index:3;"></div>
+        <div style="position:absolute;left:8px;top:8px;width:40px;height:40px;z-index:1;"></div>
+      </section>
+    `);
+
+    const containerNode = designPlan.root.children[0];
+    const firstChild = containerNode.children[0];
+    const secondChild = containerNode.children[1];
+
+    expect(firstChild.item.zIndex).toBe(1);
+    expect(secondChild.item.zIndex).toBe(3);
+    expect(secondChild.item.position).toBe("ABSOLUTE");
+    expect(secondChild.item.inset.top).toBe(24);
+    expect(secondChild.item.inset.right).toBe(16);
+  });
 });

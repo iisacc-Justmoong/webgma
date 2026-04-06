@@ -19,16 +19,18 @@ The product goal is:
   - `Mode 1` accepts HTML and CSS files
   - `Mode 2` accepts HTML and CSS code
   - keeps all visible UI copy in English
-  - measures the rendered content and requests an initial hug-sized UI before first display
+  - measures the rendered content and requests a fit-to-content resize after load
   - intentionally excludes sample loaders and preview UI
 - `src/plugin/code.ts`
   - owns the Figma plugin lifecycle
   - runs static HTML/CSS analysis directly in the plugin runtime
-  - keeps the UI hidden until the first size measurement arrives, then shows it
+  - opens the UI with a safe default size so controls are visible even before the first resize message arrives
   - renders the resulting design plan on the current page
 - `src/plugin/render-design-plan.ts`
   - maps layout hints to Figma frames and text layers
   - applies the current auto-layout-related CSS subset
+  - maps appearance hints such as fills, strokes, image fills, and shadows onto Figma nodes
+  - applies child placement hints such as margin wrappers, flex growth, stretch alignment, and absolute positioning
 - `scripts/build-plugin.mjs`
   - bundles the plugin into `build/`
   - targets `es2017` so the generated code stays compatible with Figma's plugin code evaluator
@@ -42,6 +44,7 @@ The product goal is:
   - validates the HTML/CSS payload
   - runs the end-to-end static conversion flow
 - `src/shared/services/inline-html-service.ts`
+  - normalizes escaped HTML input back into markup before selector matching
   - applies CSS declarations to HTML through static selector matching
   - extracts embedded `<style>` blocks and removes stylesheet links so the merged HTML stays self-contained
   - flattens conditional rules and state selectors onto base elements when forcing a single inline HTML output
@@ -52,8 +55,11 @@ The product goal is:
   - preserves inline text fragments as styled text ranges
   - preserves `<img>` and `background-image` assets in the plan
   - derives layout, appearance, and text hints for the renderer
+  - carries border strokes, box shadows, and broader inline color formats into appearance hints
+  - separates container layout hints from child item-placement hints so CSS survives the trip into Figma more faithfully
 - `src/shared/contracts.ts`
   - keeps the plugin data contracts explicit
+  - exposes both container layout hints and child item hints as the shared design-plan model
 
 ## Why this split
 
@@ -65,7 +71,7 @@ The product goal is:
 
 ## Immediate next steps
 
-1. Add support for more selector types, margins, borders, and richer typography.
+1. Add support for CSS grid, gradients, richer typography, and more complete background semantics.
 2. Improve CSS cascade fidelity for conflicting selectors and inheritance.
 3. Introduce a stable node identity strategy so repeated imports can update existing nodes.
 4. Add fixture-based regression tests for larger HTML/CSS cases.

@@ -51,6 +51,19 @@ describe("mergeHtmlWithCss", () => {
     expect(mergedHtml).toMatch(/padding:\s*14px/i);
   });
 
+  it("decodes escaped HTML input before inlining CSS", () => {
+    const mergedHtml = mergeHtmlWithCss(
+      '&lt;div class="card"&gt;&lt;h1&gt;Hello&lt;/h1&gt;&lt;/div&gt;',
+      '.card { display: flex; padding: 12px; } h1 { font-size: 24px; }'
+    );
+
+    expect(mergedHtml).toContain('<div class="card"');
+    expect(mergedHtml).toMatch(/display:\s*flex/i);
+    expect(mergedHtml).toMatch(/padding:\s*12px/i);
+    expect(mergedHtml).toMatch(/font-size:\s*24px/i);
+    expect(mergedHtml).not.toContain("&lt;div");
+  });
+
   it("removes stylesheet tags and links from the merged single HTML output", () => {
     const mergedHtml = mergeHtmlWithCss(
       `<!doctype html>

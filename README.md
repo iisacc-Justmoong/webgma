@@ -39,9 +39,14 @@ manifest.json
 The current static-analysis scaffold already handles:
 
 - tag, class, and id based CSS inlining
+- decoding of escaped HTML input before DOM parsing
 - extraction of embedded `<style>` blocks and removal of stylesheet `<link>` dependencies from the merged output
 - flex direction, gap, padding, width, height
+- flex wrap, row/column gap, overflow clipping, min/max sizing
+- child margin, `align-self`, `flex-grow`, `flex-shrink`, `flex-basis`, and absolute inset hints
 - background color, opacity, border radius
+- named colors and `hsl()` / `hsla()` inline color parsing
+- border stroke and `box-shadow` appearance transfer into Figma frames
 - mixed inline text fragments such as `Hello <strong>world</strong>`
 - `<img>` and `background-image` based image assets
 - basic text size, weight, line height, alignment, and color
@@ -60,12 +65,14 @@ The next implementation phase should expand selector coverage, improve cascade f
 - the plugin no longer includes sample input helpers
 - the plugin no longer includes browser or merged-output preview features
 - the plugin UI uses English-only copy
-- the plugin measures content and applies an initial UI resize before showing the window
+- the plugin opens with a safe default size and then applies a content-based resize after load
 - the manifest permits remote image fetches so referenced image assets can be rendered
 - the plugin bundle is emitted with an `es2017` target so Figma code evaluation does not fail on `??`, optional chaining, or object spread syntax
 - the test suite compiles a temporary plugin bundle and fails if unsupported syntax survives bundling
 - the root manifest is for development import, while `build/release/manifest.json` is generated for distribution packaging
 - CSS is forced into inline HTML whenever possible, and flattening diagnostics are surfaced when selector or rule fidelity is reduced
+- frame appearance is no longer limited to fills; border strokes and box shadows are also preserved in the design plan and renderer
+- the design-plan layer now carries container layout hints and child placement hints separately so more CSS survives translation into Figma
 
 ## Deployment
 

@@ -45,7 +45,7 @@ export function mergeHtmlWithCssWithDiagnostics(
   html: string,
   css: string
 ): InlineHtmlMergeResult {
-  const normalizedHtml = html.trim();
+  const normalizedHtml = normalizeHtmlSource(html);
 
   if (!normalizedHtml) {
     throw new Error("HTML content is required.");
@@ -185,6 +185,20 @@ function removeStylesheetDependencies(documentNode: HTMLElement) {
   }
 }
 
+function normalizeHtmlSource(html: string): string {
+  const trimmedHtml = html.trim();
+
+  if (
+    !trimmedHtml ||
+    containsHtmlLikeMarkup(trimmedHtml) ||
+    !looksLikeEscapedHtml(trimmedHtml)
+  ) {
+    return trimmedHtml;
+  }
+
+  return decodeHtmlEntities(trimmedHtml).trim();
+}
+
 function parseStylesheet(css: string): ParsedStylesheet {
   const rules: CssRule[] = [];
   const warnings: string[] = [];
@@ -294,6 +308,14 @@ function parseStylesheet(css: string): ParsedStylesheet {
     rules,
     warnings
   };
+}
+
+function containsHtmlLikeMarkup(value: string): boolean {
+  return /<\/?[a-zA-Z!][^>]*>/.test(value);
+}
+
+function looksLikeEscapedHtml(value: string): boolean {
+  return /&lt;\/?[a-zA-Z!][^&]*&gt;/.test(value);
 }
 
 function parseDeclarationBlock(block: string): StyleMap {
@@ -577,4 +599,19 @@ function omitGeneratedContent(declarations: StyleMap): StyleMap {
   }
 
   return nextDeclarations;
+}
+
+function decodeHtmlEntities(value: string): string {
+  return value
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;|&apos;/gi, "'")
+    .replace(/&amp;/gi, "&")
+    .replace(/&#(\d+);/g, (_, codePoint) =>
+      String.fromCodePoint(Number.parseInt(codePoint, 10))
+    )
+    .replace(/&#x([0-9a-f]+);/gi, (_, codePoint) =>
+      String.fromCodePoint(Number.parseInt(codePoint, 16))
+    );
 }

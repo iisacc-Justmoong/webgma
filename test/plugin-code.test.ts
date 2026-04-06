@@ -11,9 +11,10 @@ describe("plugin code", () => {
 
     expect(pluginCode).toContain('type: "resize-ui"');
     expect(pluginCode).toContain("figma.ui.resize");
-    expect(pluginCode).toContain("figma.ui.show()");
-    expect(pluginCode).toContain("visible: false");
-    expect(pluginCode).toContain("hasShownUi");
+    expect(pluginCode).toContain("height: 860");
+    expect(pluginCode).not.toContain("visible: false");
+    expect(pluginCode).not.toContain("figma.ui.show()");
+    expect(pluginCode).not.toContain("hasShownUi");
     expect(pluginCode).toContain("clampDimension");
     expect(pluginCode).toContain("MIN_UI_WIDTH");
     expect(pluginCode).toContain("MAX_UI_HEIGHT");
