@@ -41,6 +41,9 @@ The current static-analysis scaffold already handles:
 - tag, class, and id based CSS inlining
 - decoding of escaped HTML input before DOM parsing
 - extraction of embedded `<style>` blocks and removal of stylesheet `<link>` dependencies from the merged output
+- normalization of `:root`, `:where()`, and `:is()` selectors into inlineable selectors
+- resolution of CSS custom properties so `var(--token)` values become concrete inline styles
+- preservation of selector-engine-supported structural selectors such as `:not()`, `:first-child`, and `:nth-child()`
 - flex direction, gap, padding, width, height
 - flex wrap, row/column gap, overflow clipping, min/max sizing
 - child margin, `align-self`, `flex-grow`, `flex-shrink`, `flex-basis`, and absolute inset hints
@@ -73,6 +76,7 @@ The next implementation phase should expand selector coverage, improve cascade f
 - CSS is forced into inline HTML whenever possible, and flattening diagnostics are surfaced when selector or rule fidelity is reduced
 - frame appearance is no longer limited to fills; border strokes and box shadows are also preserved in the design plan and renderer
 - the design-plan layer now carries container layout hints and child placement hints separately so more CSS survives translation into Figma
+- text nodes honor `max-width` during Figma rendering so long copy can wrap instead of expanding the root frame horizontally
 
 ## Deployment
 

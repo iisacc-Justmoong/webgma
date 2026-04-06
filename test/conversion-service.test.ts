@@ -74,6 +74,50 @@ describe("convertHtmlCssToDesign", () => {
     expect(result.designPlan.root.children[0]?.children[0]?.kind).toBe("TEXT");
   });
 
+  it("keeps resolved CSS variables and selector flattening in the final design plan", () => {
+    const result = convertHtmlCssToDesign({
+      html: {
+        content:
+          '<main class="landing svelte-1uha8ag"><p class="lede svelte-1uha8ag">Hello world</p></main>',
+        mode: "code"
+      },
+      css: {
+        content: `
+          :root {
+            --color-text-tertiary: #deddda;
+            --font-body: 17px;
+          }
+
+          .lede.svelte-1uha8ag {
+            color: var(--color-text-tertiary);
+            font-size: var(--font-body);
+            max-width: 720px;
+          }
+
+          p:where(.svelte-1uha8ag) {
+            margin: 0;
+          }
+        `,
+        mode: "code"
+      }
+    });
+
+    const paragraphNode = result.designPlan.root.children[0]?.children[0];
+
+    expect(result.mergedHtml).toMatch(/color:\s*#deddda/i);
+    expect(result.mergedHtml).toMatch(/font-size:\s*17px/i);
+    expect(result.mergedHtml).toMatch(/max-width:\s*720px/i);
+    expect(paragraphNode?.kind).toBe("TEXT");
+    expect(paragraphNode?.text?.fontSize).toBe(17);
+    expect(paragraphNode?.appearance.fills[0]).toMatchObject({
+      r: 222 / 255,
+      g: 221 / 255,
+      b: 218 / 255,
+      opacity: 1
+    });
+    expect(paragraphNode?.layout.maxWidth).toBe(720);
+  });
+
   it("validates missing HTML and CSS content", () => {
     expect(() =>
       convertHtmlCssToDesign({

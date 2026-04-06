@@ -129,6 +129,21 @@ describe("createDesignPlan", () => {
     });
   });
 
+  it("parses 8-digit hex colors from inline styles", () => {
+    const designPlan = createDesignPlan(`
+      <div style="background-color:#ffffffcc;"></div>
+    `);
+
+    const colorNode = designPlan.root.children[0];
+
+    expect(colorNode.appearance.fills[0]).toMatchObject({
+      r: 1,
+      g: 1,
+      b: 1
+    });
+    expect(colorNode.appearance.fills[0].opacity).toBeCloseTo(0.8, 1);
+  });
+
   it("captures richer box-model hints for flex containers and children", () => {
     const designPlan = createDesignPlan(`
       <section style="display:flex;flex-wrap:wrap;gap:16px 24px;overflow:hidden;width:480px;">

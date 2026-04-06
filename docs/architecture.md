@@ -31,6 +31,7 @@ The product goal is:
   - applies the current auto-layout-related CSS subset
   - maps appearance hints such as fills, strokes, image fills, and shadows onto Figma nodes
   - applies child placement hints such as margin wrappers, flex growth, stretch alignment, and absolute positioning
+  - respects text max-width constraints so long paragraphs wrap instead of stretching the imported page into one line
 - `scripts/build-plugin.mjs`
   - bundles the plugin into `build/`
   - targets `es2017` so the generated code stays compatible with Figma's plugin code evaluator
@@ -47,6 +48,8 @@ The product goal is:
   - normalizes escaped HTML input back into markup before selector matching
   - applies CSS declarations to HTML through static selector matching
   - extracts embedded `<style>` blocks and removes stylesheet links so the merged HTML stays self-contained
+  - resolves CSS custom properties and normalizes inlineable functional selectors such as `:root` and `:where(...)`
+  - preserves structural pseudo selectors when the underlying selector engine can resolve them
   - flattens conditional rules and state selectors onto base elements when forcing a single inline HTML output
   - reports merge warnings when selector or rule fidelity is reduced
 - `src/shared/services/design-plan-service.ts`

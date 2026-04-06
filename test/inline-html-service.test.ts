@@ -128,6 +128,83 @@ describe("mergeHtmlWithCss", () => {
     );
   });
 
+  it("resolves CSS variables and functional selectors into concrete inline styles", () => {
+    const mergeResult = mergeHtmlWithCssWithDiagnostics(
+      `
+        <html>
+          <body>
+            <main class="landing svelte-1uha8ag">
+              <a class="button primary svelte-1uha8ag">View Products</a>
+            </main>
+          </body>
+        </html>
+      `,
+      `
+        :root {
+          --color-accent-primary: #007aff;
+          --color-text-primary: #ffffff;
+        }
+
+        .button.primary.svelte-1uha8ag {
+          background: var(--color-accent-primary);
+          color: var(--color-text-primary);
+          padding: 16px 32px;
+        }
+
+        a:where(.svelte-1uha8ag) {
+          text-decoration: none;
+        }
+      `
+    );
+
+    expect(mergeResult.mergedHtml).toMatch(/background:\s*#007aff/i);
+    expect(mergeResult.mergedHtml).toMatch(/color:\s*#ffffff/i);
+    expect(mergeResult.mergedHtml).toMatch(/text-decoration:\s*none/i);
+    expect(mergeResult.mergedHtml).not.toMatch(/var\(--color-accent-primary\)/i);
+    expect(mergeResult.warnings).toContain(
+      "Functional selector flattened onto the base selector during CSS inlining: a:where(.svelte-1uha8ag)."
+    );
+    expect(mergeResult.warnings).toContain(
+      "Root selector normalized during CSS inlining: :root."
+    );
+  });
+
+  it("keeps structural pseudo selectors that the selector engine can resolve", () => {
+    const mergeResult = mergeHtmlWithCssWithDiagnostics(
+      `
+        <ul class="list">
+          <li class="item active">First</li>
+          <li class="item">Second</li>
+          <li class="item">Third</li>
+        </ul>
+      `,
+      `
+        .item:first-child {
+          margin-top: 0;
+        }
+
+        .item:nth-child(2) {
+          color: #ff0000;
+        }
+
+        .item:not(.active) {
+          opacity: 0.7;
+        }
+      `
+    );
+
+    expect(mergeResult.mergedHtml).toMatch(/First<\/li>/i);
+    expect(mergeResult.mergedHtml).toMatch(/margin-top:\s*0/i);
+    expect(mergeResult.mergedHtml).toMatch(/Second<\/li>/i);
+    expect(mergeResult.mergedHtml).toMatch(/color:\s*#ff0000/i);
+    expect(mergeResult.mergedHtml).toMatch(/opacity:\s*0\.7/i);
+    expect(
+      mergeResult.warnings.some((warning) =>
+        warning.includes("Unsupported selector skipped during CSS inlining")
+      )
+    ).toBe(false);
+  });
+
   it("rejects empty HTML input", () => {
     expect(() => mergeHtmlWithCss("   ", "body { color: red; }")).toThrow(
       "HTML content is required."

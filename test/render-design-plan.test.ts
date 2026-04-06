@@ -17,5 +17,7 @@ describe("render design plan", () => {
     expect(renderCode).toContain("sceneChild.layoutPositioning = \"ABSOLUTE\"");
     expect(renderCode).toContain("sceneChild.layoutGrow = childNode.item.flexGrow");
     expect(renderCode).toContain("wrapSceneChildWithMargin");
+    expect(renderCode).toContain("node.layout.width || node.layout.maxWidth ? \"HEIGHT\"");
+    expect(renderCode).toContain("textNode.resize(node.layout.maxWidth, textNode.height)");
   });
 });

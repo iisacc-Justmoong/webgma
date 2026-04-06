@@ -36,6 +36,7 @@ const FLATTENABLE_AT_RULES = new Set([
 const DYNAMIC_PSEUDO_PATTERN =
   /:(active|focus|focus-visible|focus-within|hover|link|target|visited)\b(?:\([^)]*\))?/g;
 const PSEUDO_ELEMENT_PATTERN = /::?(after|before|first-letter|first-line)\b/g;
+const FUNCTION_PSEUDO_PATTERN = /:(is|where)\(([^()]+)\)/g;
 
 export function mergeHtmlWithCss(html: string, css: string): string {
   return mergeHtmlWithCssWithDiagnostics(html, css).mergedHtml;
@@ -94,14 +95,18 @@ export function mergeHtmlWithCssWithDiagnostics(
 
       let matchedElements: HTMLElement[] = [];
 
-      try {
-        matchedElements = documentNode.querySelectorAll(selectorCandidate.selector);
-      } catch {
-        addWarning(
-          warnings,
-          `Unsupported selector skipped during CSS inlining: ${normalizedSelector}.`
-        );
-        continue;
+      if (selectorCandidate.targetsDocumentRoot) {
+        matchedElements = findDocumentRootTargets(documentNode);
+      } else {
+        try {
+          matchedElements = documentNode.querySelectorAll(selectorCandidate.selector);
+        } catch {
+          addWarning(
+            warnings,
+            `Unsupported selector skipped during CSS inlining: ${normalizedSelector}.`
+          );
+          continue;
+        }
       }
 
       const specificity = calculateSpecificity(selectorCandidate.selector);
@@ -136,23 +141,7 @@ export function mergeHtmlWithCssWithDiagnostics(
     }
   }
 
-  for (const element of documentNode.querySelectorAll("*")) {
-    const declarationsForElement =
-      appliedStyles.get(element) ?? new Map<string, AppliedDeclaration>();
-    const inlineStyles = parseDeclarationBlock(element.getAttribute("style") ?? "");
-
-    for (const [property, value] of Object.entries(inlineStyles)) {
-      declarationsForElement.set(property, {
-        value,
-        specificity: INLINE_STYLE_SPECIFICITY,
-        order: INLINE_STYLE_ORDER
-      });
-    }
-
-    if (declarationsForElement.size > 0) {
-      element.setAttribute("style", serializeDeclarations(declarationsForElement));
-    }
-  }
+  mergeInlineStyles(documentNode, appliedStyles);
 
   return {
     mergedHtml: documentNode.toString(),
@@ -374,6 +363,7 @@ function resolveInlineSelector(selector: string, warnings: string[]) {
   const exactSelector = selector.trim();
   let normalizedSelector = exactSelector;
   let stripGeneratedContent = false;
+  let targetsDocumentRoot = false;
 
   PSEUDO_ELEMENT_PATTERN.lastIndex = 0;
 
@@ -398,15 +388,59 @@ function resolveInlineSelector(selector: string, warnings: string[]) {
     );
   }
 
+  FUNCTION_PSEUDO_PATTERN.lastIndex = 0;
+
+  if (FUNCTION_PSEUDO_PATTERN.test(normalizedSelector)) {
+    FUNCTION_PSEUDO_PATTERN.lastIndex = 0;
+    normalizedSelector = normalizedSelector.replace(
+      FUNCTION_PSEUDO_PATTERN,
+      (_, pseudoName: string, innerSelector: string) => {
+        const normalizedInnerSelector = innerSelector.trim();
+
+        if (!normalizedInnerSelector || normalizedInnerSelector.includes(",")) {
+          addWarning(
+            warnings,
+            `Unsupported functional selector skipped during CSS inlining: ${exactSelector}.`
+          );
+
+          return `:${pseudoName}(${innerSelector})`;
+        }
+
+        addWarning(
+          warnings,
+          `Functional selector flattened onto the base selector during CSS inlining: ${exactSelector}.`
+        );
+
+        return normalizedInnerSelector;
+      }
+    );
+  }
+
+  if (normalizedSelector === ":root") {
+    normalizedSelector = "html";
+    targetsDocumentRoot = true;
+    addWarning(
+      warnings,
+      `Root selector normalized during CSS inlining: ${exactSelector}.`
+    );
+  } else if (normalizedSelector.includes(":root")) {
+    normalizedSelector = normalizedSelector.replace(/:root/g, "html");
+    addWarning(
+      warnings,
+      `Root selector normalized during CSS inlining: ${exactSelector}.`
+    );
+  }
+
   normalizedSelector = collapseSelectorWhitespace(normalizedSelector);
 
-  if (!normalizedSelector || normalizedSelector === "*" || normalizedSelector.includes(":")) {
+  if (!normalizedSelector || normalizedSelector === "*") {
     return null;
   }
 
   return {
     selector: normalizedSelector,
-    stripGeneratedContent
+    stripGeneratedContent,
+    targetsDocumentRoot
   };
 }
 
@@ -614,4 +648,238 @@ function decodeHtmlEntities(value: string): string {
     .replace(/&#x([0-9a-f]+);/gi, (_, codePoint) =>
       String.fromCodePoint(Number.parseInt(codePoint, 16))
     );
+}
+
+function findDocumentRootTargets(documentNode: HTMLElement): HTMLElement[] {
+  const htmlElement = documentNode.querySelector("html");
+
+  if (htmlElement) {
+    return [htmlElement];
+  }
+
+  return documentNode.childNodes.filter(
+    (childNode): childNode is HTMLElement => childNode instanceof HTMLElement
+  );
+}
+
+function mergeInlineStyles(
+  documentNode: HTMLElement,
+  appliedStyles: Map<HTMLElement, Map<string, AppliedDeclaration>>
+) {
+  const inheritedCustomProperties = new Map<string, string>();
+
+  for (const childNode of documentNode.childNodes) {
+    if (childNode instanceof HTMLElement) {
+      applyResolvedStylesRecursively(
+        childNode,
+        appliedStyles,
+        inheritedCustomProperties
+      );
+    }
+  }
+}
+
+function applyResolvedStylesRecursively(
+  element: HTMLElement,
+  appliedStyles: Map<HTMLElement, Map<string, AppliedDeclaration>>,
+  inheritedCustomProperties: Map<string, string>
+) {
+  const declarationsForElement =
+    appliedStyles.get(element) ?? new Map<string, AppliedDeclaration>();
+  const inlineStyles = parseDeclarationBlock(element.getAttribute("style") ?? "");
+
+  for (const [property, value] of Object.entries(inlineStyles)) {
+    declarationsForElement.set(property, {
+      value,
+      specificity: INLINE_STYLE_SPECIFICITY,
+      order: INLINE_STYLE_ORDER
+    });
+  }
+
+  const resolvedCustomProperties = new Map(inheritedCustomProperties);
+
+  for (const [property, declaration] of getDeclarationsInOrder(declarationsForElement)) {
+    if (!property.startsWith("--")) {
+      continue;
+    }
+
+    resolvedCustomProperties.set(
+      property,
+      resolveCssVariables(declaration.value, resolvedCustomProperties)
+    );
+  }
+
+  const serializedDeclarations = getDeclarationsInOrder(declarationsForElement)
+    .filter(([property]) => !property.startsWith("--"))
+    .map(([property, declaration]) => ({
+      property,
+      order: declaration.order,
+      value: resolveCssVariables(declaration.value, resolvedCustomProperties)
+    }))
+    .filter((declaration) => declaration.value.trim().length > 0)
+    .sort((left, right) => left.order - right.order)
+    .map((declaration) => `${declaration.property}: ${declaration.value}`)
+    .join("; ");
+
+  if (serializedDeclarations) {
+    element.setAttribute("style", serializedDeclarations);
+  } else if (element.hasAttribute("style")) {
+    element.removeAttribute("style");
+  }
+
+  for (const childNode of element.childNodes) {
+    if (childNode instanceof HTMLElement) {
+      applyResolvedStylesRecursively(
+        childNode,
+        appliedStyles,
+        resolvedCustomProperties
+      );
+    }
+  }
+}
+
+function getDeclarationsInOrder(
+  declarations: Map<string, AppliedDeclaration>
+): Array<[string, AppliedDeclaration]> {
+  return [...declarations.entries()].sort(
+    (leftEntry, rightEntry) => leftEntry[1].order - rightEntry[1].order
+  );
+}
+
+function resolveCssVariables(
+  value: string,
+  customProperties: Map<string, string>,
+  seenProperties = new Set<string>()
+): string {
+  let resolvedValue = value;
+  let guard = 0;
+
+  while (resolvedValue.includes("var(") && guard < 32) {
+    const nextValue = resolveSingleVariablePass(
+      resolvedValue,
+      customProperties,
+      seenProperties
+    );
+
+    if (nextValue === resolvedValue) {
+      break;
+    }
+
+    resolvedValue = nextValue;
+    guard += 1;
+  }
+
+  return resolvedValue;
+}
+
+function resolveSingleVariablePass(
+  value: string,
+  customProperties: Map<string, string>,
+  seenProperties: Set<string>
+): string {
+  let result = "";
+
+  for (let index = 0; index < value.length; index += 1) {
+    if (!value.startsWith("var(", index)) {
+      result += value[index];
+      continue;
+    }
+
+    const closingIndex = findMatchingParenthesis(value, index + 3);
+
+    if (closingIndex < 0) {
+      result += value[index];
+      continue;
+    }
+
+    const expression = value.slice(index + 4, closingIndex);
+    const [propertyName, fallbackValue] = splitVarExpression(expression);
+    const resolvedProperty = propertyName
+      ? resolveCustomPropertyValue(propertyName, customProperties, seenProperties)
+      : undefined;
+    const nextValue =
+      resolvedProperty ??
+      (fallbackValue
+        ? resolveCssVariables(fallbackValue, customProperties, seenProperties)
+        : `var(${expression})`);
+
+    result += nextValue;
+    index = closingIndex;
+  }
+
+  return result;
+}
+
+function resolveCustomPropertyValue(
+  propertyName: string,
+  customProperties: Map<string, string>,
+  seenProperties: Set<string>
+): string | undefined {
+  const normalizedPropertyName = propertyName.trim();
+
+  if (!normalizedPropertyName || seenProperties.has(normalizedPropertyName)) {
+    return undefined;
+  }
+
+  const rawValue = customProperties.get(normalizedPropertyName);
+
+  if (rawValue === undefined) {
+    return undefined;
+  }
+
+  seenProperties.add(normalizedPropertyName);
+  const resolvedValue = resolveCssVariables(rawValue, customProperties, seenProperties);
+  seenProperties.delete(normalizedPropertyName);
+
+  return resolvedValue;
+}
+
+function splitVarExpression(expression: string): [string | undefined, string | undefined] {
+  let depth = 0;
+
+  for (let index = 0; index < expression.length; index += 1) {
+    const character = expression[index];
+
+    if (character === "(") {
+      depth += 1;
+      continue;
+    }
+
+    if (character === ")") {
+      depth = Math.max(depth - 1, 0);
+      continue;
+    }
+
+    if (character === "," && depth === 0) {
+      return [
+        expression.slice(0, index).trim(),
+        expression.slice(index + 1).trim()
+      ];
+    }
+  }
+
+  return [expression.trim(), undefined];
+}
+
+function findMatchingParenthesis(source: string, openingIndex: number): number {
+  let depth = 0;
+
+  for (let index = openingIndex; index < source.length; index += 1) {
+    const character = source[index];
+
+    if (character === "(") {
+      depth += 1;
+      continue;
+    }
+
+    if (character === ")") {
+      depth -= 1;
+
+      if (depth === 0) {
+        return index;
+      }
+    }
+  }
+
+  return -1;
 }

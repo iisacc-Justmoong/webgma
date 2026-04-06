@@ -104,13 +104,17 @@ async function createTextNode(node: DesignPlanNode): Promise<TextNode> {
     ? node.appearance.fills.map(toSolidPaint)
     : [...DEFAULT_TEXT_COLOR];
   textNode.opacity = node.appearance.opacity ?? 1;
-  textNode.textAutoResize = node.layout.width ? "HEIGHT" : "WIDTH_AND_HEIGHT";
+  textNode.textAutoResize =
+    node.layout.width || node.layout.maxWidth ? "HEIGHT" : "WIDTH_AND_HEIGHT";
 
   if (node.layout.width) {
     textNode.resize(node.layout.width, textNode.height);
+  } else if (node.layout.maxWidth) {
+    textNode.resize(node.layout.maxWidth, textNode.height);
   }
 
   applyTextSegments(textNode, segments);
+  applyMinMaxSizing(textNode, node.layout);
 
   return textNode;
 }

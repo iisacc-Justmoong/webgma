@@ -626,7 +626,11 @@ function pickTextStyles(styles: StyleMap): StyleMap {
     "letter-spacing",
     "text-align",
     "width",
+    "min-width",
+    "max-width",
     "height",
+    "min-height",
+    "max-height",
     "opacity"
   ];
 
@@ -1072,12 +1076,32 @@ function parseHexColor(value: string): ColorHint | undefined {
     };
   }
 
+  if (normalizedValue.length === 4) {
+    const [red, green, blue, alpha] = normalizedValue.split("");
+
+    return {
+      r: Number.parseInt(`${red}${red}`, 16) / 255,
+      g: Number.parseInt(`${green}${green}`, 16) / 255,
+      b: Number.parseInt(`${blue}${blue}`, 16) / 255,
+      opacity: Number.parseInt(`${alpha}${alpha}`, 16) / 255
+    };
+  }
+
   if (normalizedValue.length === 6) {
     return {
       r: Number.parseInt(normalizedValue.slice(0, 2), 16) / 255,
       g: Number.parseInt(normalizedValue.slice(2, 4), 16) / 255,
       b: Number.parseInt(normalizedValue.slice(4, 6), 16) / 255,
       opacity: 1
+    };
+  }
+
+  if (normalizedValue.length === 8) {
+    return {
+      r: Number.parseInt(normalizedValue.slice(0, 2), 16) / 255,
+      g: Number.parseInt(normalizedValue.slice(2, 4), 16) / 255,
+      b: Number.parseInt(normalizedValue.slice(4, 6), 16) / 255,
+      opacity: Number.parseInt(normalizedValue.slice(6, 8), 16) / 255
     };
   }
 
