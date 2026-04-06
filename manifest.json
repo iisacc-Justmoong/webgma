@@ -3,5 +3,9 @@
   "api": "1.0.0",
   "main": "build/plugin/code.js",
   "ui": "build/plugin/ui.html",
+  "networkAccess": {
+    "allowedDomains": ["*"],
+    "reasoning": "Fetch image assets referenced by imported HTML and CSS."
+  },
   "editorType": ["figma"]
 }

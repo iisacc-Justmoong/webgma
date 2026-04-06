@@ -37,6 +37,8 @@ The product goal is:
 - `src/shared/services/design-plan-service.ts`
   - parses merged inline HTML
   - produces a normalized tree of frames and text nodes
+  - preserves inline text fragments as styled text ranges
+  - preserves `<img>` and `background-image` assets in the plan
   - derives layout, appearance, and text hints for the renderer
 - `src/shared/contracts.ts`
   - keeps the plugin data contracts explicit

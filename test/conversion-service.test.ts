@@ -18,6 +18,7 @@ describe("convertHtmlCssToDesign", () => {
     expect(result.mergedHtml).toMatch(/padding:\s*32px/i);
     expect(result.designPlan.root.children).toHaveLength(1);
     expect(result.warnings[0]).toMatch(/Current static analysis maps inline styles/i);
+    expect(result.warnings[0]).toMatch(/image assets/i);
   });
 
   it("validates missing HTML and CSS content", () => {

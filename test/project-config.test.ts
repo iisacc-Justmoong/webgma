@@ -14,4 +14,18 @@ describe("project configuration", () => {
     expect(packageJson.scripts).not.toHaveProperty("build:backend");
     expect(packageJson.scripts).not.toHaveProperty("dev:backend");
   });
+
+  it("allows fetching remote image assets referenced by imported markup", () => {
+    const manifest = JSON.parse(
+      readFileSync(resolve(process.cwd(), "manifest.json"), "utf8")
+    ) as {
+      networkAccess?: {
+        allowedDomains?: string[];
+        reasoning?: string;
+      };
+    };
+
+    expect(manifest.networkAccess?.allowedDomains).toEqual(["*"]);
+    expect(manifest.networkAccess?.reasoning).toMatch(/image assets/i);
+  });
 });

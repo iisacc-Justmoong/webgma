@@ -17,6 +17,8 @@ export interface ConversionResponse {
   warnings: string[];
 }
 
+export type FontStyleHint = "NORMAL" | "ITALIC";
+
 export interface DesignPlanDocument {
   version: 1;
   metadata: {
@@ -50,17 +52,38 @@ export interface ColorHint {
   opacity: number;
 }
 
+export interface ImageHint {
+  alt?: string;
+  fit: "FILL" | "FIT";
+  source: string;
+  sourceType: "DATA" | "URL";
+}
+
 export interface AppearanceHints {
   fills: ColorHint[];
+  image?: ImageHint;
   cornerRadius?: number;
   opacity?: number;
 }
 
+export interface TextSegmentHints {
+  end: number;
+  fills: ColorHint[];
+  fontSize?: number;
+  fontStyle: FontStyleHint;
+  fontWeight?: number;
+  letterSpacing?: number;
+  lineHeight?: number;
+  start: number;
+}
+
 export interface TextHints {
   fontSize?: number;
+  fontStyle: FontStyleHint;
   fontWeight?: number;
   lineHeight?: number;
   letterSpacing?: number;
+  segments: TextSegmentHints[];
   textAlign: "LEFT" | "CENTER" | "RIGHT" | "JUSTIFIED";
 }
 
@@ -68,7 +91,7 @@ export type StyleMap = Record<string, string>;
 
 export interface DesignPlanNode {
   id: string;
-  kind: "FRAME" | "TEXT";
+  kind: "FRAME" | "IMAGE" | "TEXT";
   name: string;
   tagName?: string;
   textContent?: string;

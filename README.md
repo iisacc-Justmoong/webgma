@@ -38,6 +38,8 @@ The current static-analysis scaffold already handles:
 - tag, class, and id based CSS inlining
 - flex direction, gap, padding, width, height
 - background color, opacity, border radius
+- mixed inline text fragments such as `Hello <strong>world</strong>`
+- `<img>` and `background-image` based image assets
 - basic text size, weight, line height, alignment, and color
 
 The next implementation phase should expand selector coverage, improve cascade fidelity, and harden layout parity with browser rendering.
@@ -51,4 +53,5 @@ The next implementation phase should expand selector coverage, improve cascade f
 
 - the plugin no longer includes sample input helpers
 - the plugin no longer includes browser or merged-output preview features
+- the manifest permits remote image fetches so referenced image assets can be rendered
 - unsupported CSS should be added in the shared static-analysis layer and renderer, not bypassed in the UI
