@@ -7,7 +7,7 @@ Webgma is a Figma plugin scaffold for a pipeline with two responsibilities:
 
 The repository now contains the minimum project shape to start implementing the full workflow:
 
-- a Figma plugin shell with a two-pane input UI
+- a Figma plugin shell with two dedicated code editors for HTML and CSS
 - a Node.js backend skeleton that merges HTML and CSS
 - a design-plan generator that extracts a starter layout tree from inline styles
 - tests and documentation for the current scaffold
@@ -38,7 +38,7 @@ manifest.json
 
 ## Current flow
 
-1. The plugin UI accepts HTML and CSS from textareas or file inputs.
+1. The plugin UI exposes two primary code inputs: one textarea for HTML and one textarea for CSS. File inputs can populate those editors.
 2. The plugin main thread posts the request to the backend.
 3. The backend uses `juice` to inline CSS into the HTML document.
 4. The backend turns merged inline HTML into a design plan.

@@ -83,6 +83,23 @@
         gap: 8px;
       }
 
+      .pane-copy {
+        display: grid;
+        gap: 6px;
+      }
+
+      .pane-copy p {
+        margin: 0;
+        color: #94a3b8;
+        font-size: 12px;
+        line-height: 1.5;
+      }
+
+      .code-input {
+        display: grid;
+        gap: 8px;
+      }
+
       label {
         display: grid;
         gap: 6px;
@@ -167,9 +184,10 @@
       <section class="header">
         <h1>Webgma</h1>
         <p>
-          Paste HTML and CSS or load them from files. The plugin forwards both
-          sources to the backend, receives a merged inline HTML source, then
-          builds a starter Figma layout from the generated design plan.
+          Enter HTML code and CSS code in two separate editors. File upload is
+          optional. The plugin forwards both sources to the backend, receives a
+          merged inline HTML source, then builds a starter Figma layout from
+          the generated design plan.
         </p>
       </section>
 
@@ -189,12 +207,26 @@
             <h2>HTML Source</h2>
             <input id="html-file" type="file" accept=".html,.htm,.txt" />
           </div>
+          <div class="pane-copy">
+            <p>
+              Primary code input for raw HTML markup. Paste code directly or
+              load an HTML file to populate the editor.
+            </p>
+          </div>
           <div class="controls">
             <button class="secondary" id="load-html-sample" type="button">
               Load sample
             </button>
           </div>
-          <textarea id="html-input" spellcheck="false"></textarea>
+          <label class="code-input" for="html-input">
+            HTML Code
+            <textarea
+              id="html-input"
+              spellcheck="false"
+              aria-label="HTML code input"
+              placeholder="Paste HTML code here"
+            ></textarea>
+          </label>
         </article>
 
         <article class="pane">
@@ -202,19 +234,33 @@
             <h2>CSS Source</h2>
             <input id="css-file" type="file" accept=".css,.txt" />
           </div>
+          <div class="pane-copy">
+            <p>
+              Primary code input for stylesheet content. Paste CSS directly or
+              load a stylesheet file to populate the editor.
+            </p>
+          </div>
           <div class="controls">
             <button class="secondary" id="load-css-sample" type="button">
               Load sample
             </button>
           </div>
-          <textarea id="css-input" spellcheck="false"></textarea>
+          <label class="code-input" for="css-input">
+            CSS Code
+            <textarea
+              id="css-input"
+              spellcheck="false"
+              aria-label="CSS code input"
+              placeholder="Paste CSS code here"
+            ></textarea>
+          </label>
         </article>
       </section>
 
       <section class="status">
         <strong id="status-title">Ready</strong>
         <div id="status-description">
-          Waiting for HTML and CSS input.
+          Waiting for HTML code and CSS code input.
         </div>
         <button id="convert-button" type="button">Merge and create Figma layout</button>
         <button class="secondary" id="close-button" type="button">

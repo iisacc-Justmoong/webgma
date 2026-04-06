@@ -16,8 +16,8 @@ The current repository state establishes the first version of the architecture w
 ### Plugin side
 
 - `src/plugin/ui.html`
-  - collects HTML and CSS input
-  - lets the operator choose between typed code and uploaded files
+  - provides two explicit code editors: one for HTML and one for CSS
+  - lets the operator paste code directly or load files into those editors
   - shows merged HTML output and warnings
 - `src/plugin/code.ts`
   - owns the Figma plugin lifecycle
