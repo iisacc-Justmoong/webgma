@@ -14,6 +14,7 @@ export interface ConversionRequest {
 export interface ConversionResponse {
   mergedHtml: string;
   designPlan: DesignPlanDocument;
+  figmaTransfer: FigmaTransferDocument;
   warnings: string[];
 }
 
@@ -26,6 +27,17 @@ export interface DesignPlanDocument {
     source: "inline-html";
   };
   root: DesignPlanNode;
+}
+
+export interface FigmaTransferDocument {
+  version: 1;
+  metadata: {
+    generatedAt: string;
+    handoff: "figma-safe";
+    source: "inline-html";
+  };
+  root: FigmaTransferNode;
+  warnings: string[];
 }
 
 export interface PaddingHints {
@@ -141,4 +153,17 @@ export interface DesignPlanNode {
   appearance: AppearanceHints;
   text?: TextHints;
   children: DesignPlanNode[];
+}
+
+export interface FigmaTransferNode {
+  id: string;
+  kind: "FRAME" | "IMAGE" | "TEXT";
+  name: string;
+  tagName?: string;
+  textContent?: string;
+  layout: LayoutHints;
+  item: ItemLayoutHints;
+  appearance: AppearanceHints;
+  text?: TextHints;
+  children: FigmaTransferNode[];
 }

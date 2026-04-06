@@ -8,7 +8,9 @@ The product goal is:
 2. statically analyze both sources inside the plugin
 3. merge CSS into a single inline HTML source
 4. treat that merged HTML as the source of truth
-5. convert that source into a Figma design with CSS-aware auto layout
+5. reinterpret that source into a normalized design plan
+6. sanitize the interpreted result into a Figma-safe transfer object
+7. convert that transfer object into a Figma design with CSS-aware auto layout
 
 ## Current scaffold boundaries
 
@@ -25,13 +27,16 @@ The product goal is:
   - owns the Figma plugin lifecycle
   - runs static HTML/CSS analysis directly in the plugin runtime
   - opens the UI with a safe default size so controls are visible even before the first resize message arrives
-  - renders the resulting design plan on the current page
+  - renders the resulting Figma transfer document on the current page
 - `src/plugin/render-design-plan.ts`
+  - consumes the Figma-safe transfer payload instead of the raw design plan
   - maps layout hints to Figma frames and text layers
   - applies the current auto-layout-related CSS subset
   - maps appearance hints such as fills, strokes, image fills, and shadows onto Figma nodes
   - applies child placement hints such as margin wrappers, flex growth, stretch alignment, and absolute positioning
   - respects text max-width constraints so long paragraphs wrap instead of stretching the imported page into one line
+  - guards `min/max` sizing setters so they only run in Figma contexts that actually support those constraints
+  - enforces Figma-oriented auto-layout policy so `NONE` frames avoid auto-layout-only setters and fill/stretch child frames are moved onto legal fixed axes
 - `scripts/build-plugin.mjs`
   - bundles the plugin into `build/`
   - targets `es2017` so the generated code stays compatible with Figma's plugin code evaluator
@@ -44,10 +49,22 @@ The product goal is:
 - `src/shared/services/conversion-service.ts`
   - validates the HTML/CSS payload
   - runs the end-to-end static conversion flow
+- `src/shared/services/css-content-loader.ts`
+  - normalizes escaped HTML input before any CSS processing starts
+  - extracts embedded `<style>` blocks into explicit CSS sources
+  - removes stylesheet dependencies from the HTML so the merged output can become a single self-contained document
+  - centralizes CSS source loading so selector parsing and design-plan generation can share one normalized HTML/CSS entry point
+- `src/shared/services/figma-style-interpreter.ts`
+  - reinterprets merged inline CSS into Figma-oriented layout, item-placement, appearance, and text hints
+  - centralizes the policy for translating CSS values into the subset that the renderer can legally apply inside Figma
+  - lets `design-plan-service.ts` focus on DOM tree mapping instead of embedding all style translation rules inline
+- `src/shared/services/figma-transfer-service.ts`
+  - prepares a renderer-safe handoff document from the raw design plan
+  - removes fields the renderer does not need, such as raw style maps
+  - normalizes illegal or risky values before the Figma runtime sees them, including invalid min/max ranges, out-of-bounds colors and opacity values, broken text ranges, and unsupported image URLs
 - `src/shared/services/inline-html-service.ts`
-  - normalizes escaped HTML input back into markup before selector matching
+  - consumes the shared CSS content loader instead of loading HTML/CSS sources itself
   - applies CSS declarations to HTML through static selector matching
-  - extracts embedded `<style>` blocks and removes stylesheet links so the merged HTML stays self-contained
   - resolves CSS custom properties and normalizes inlineable functional selectors such as `:root` and `:where(...)`
   - preserves structural pseudo selectors when the underlying selector engine can resolve them
   - flattens conditional rules and state selectors onto base elements when forcing a single inline HTML output
@@ -57,17 +74,17 @@ The product goal is:
   - produces a normalized tree of frames and text nodes
   - preserves inline text fragments as styled text ranges
   - preserves `<img>` and `background-image` assets in the plan
-  - derives layout, appearance, and text hints for the renderer
+  - delegates CSS-to-Figma reinterpretation to `figma-style-interpreter.ts`
   - carries border strokes, box shadows, and broader inline color formats into appearance hints
   - separates container layout hints from child item-placement hints so CSS survives the trip into Figma more faithfully
 - `src/shared/contracts.ts`
   - keeps the plugin data contracts explicit
-  - exposes both container layout hints and child item hints as the shared design-plan model
+  - exposes the raw design-plan model and the sanitized Figma transfer model separately
 
 ## Why this split
 
 - static analysis belongs in a shared layer so the plugin owns conversion directly
-- the plugin stays focused on Figma-specific node creation after analysis
+- the plugin stays focused on Figma-specific node creation after analysis and handoff sanitization
 - the UI stays minimal and only collects real user input
 - deployment packaging is isolated in `scripts/prepare-release.mjs` so release manifests can differ from local development manifests only by asset paths
 - build compatibility checks compile the plugin into a temporary bundle during tests so unsupported syntax regressions such as nullish coalescing, optional chaining, and object spread are caught before release

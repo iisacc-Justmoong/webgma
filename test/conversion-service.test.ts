@@ -17,6 +17,8 @@ describe("convertHtmlCssToDesign", () => {
 
     expect(result.mergedHtml).toMatch(/padding:\s*32px/i);
     expect(result.designPlan.root.children).toHaveLength(1);
+    expect(result.figmaTransfer.root.children).toHaveLength(1);
+    expect(result.figmaTransfer.metadata.handoff).toBe("figma-safe");
     expect(result.warnings[0]).toMatch(/Current static analysis maps inline styles/i);
     expect(result.warnings[0]).toMatch(/image assets/i);
   });
@@ -72,6 +74,8 @@ describe("convertHtmlCssToDesign", () => {
     expect(result.mergedHtml).toContain('<section class="hero"');
     expect(result.designPlan.root.children[0]?.kind).toBe("FRAME");
     expect(result.designPlan.root.children[0]?.children[0]?.kind).toBe("TEXT");
+    expect(result.figmaTransfer.root.children[0]?.kind).toBe("FRAME");
+    expect(result.figmaTransfer.root.children[0]?.children[0]?.kind).toBe("TEXT");
   });
 
   it("keeps resolved CSS variables and selector flattening in the final design plan", () => {
@@ -116,6 +120,7 @@ describe("convertHtmlCssToDesign", () => {
       opacity: 1
     });
     expect(paragraphNode?.layout.maxWidth).toBe(720);
+    expect(result.figmaTransfer.root.children[0]?.children[0]?.layout.maxWidth).toBe(720);
   });
 
   it("validates missing HTML and CSS content", () => {

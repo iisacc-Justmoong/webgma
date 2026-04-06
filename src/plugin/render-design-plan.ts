@@ -1,8 +1,8 @@
 import type {
   ColorHint,
-  DesignPlanDocument,
-  DesignPlanNode,
   FontStyleHint,
+  FigmaTransferDocument,
+  FigmaTransferNode,
   ImageHint,
   LayoutHints,
   ShadowHint,
@@ -34,7 +34,7 @@ const IMAGE_PLACEHOLDER_FILL: readonly SolidPaint[] = [
 ];
 
 export async function renderDesignPlan(
-  document: DesignPlanDocument
+  document: FigmaTransferDocument
 ): Promise<FrameNode> {
   const rootNode = (await createSceneNode(document.root)) as FrameNode;
   rootNode.x = figma.viewport.center.x - rootNode.width / 2;
@@ -44,7 +44,7 @@ export async function renderDesignPlan(
   return rootNode;
 }
 
-async function createSceneNode(node: DesignPlanNode): Promise<SceneNode> {
+async function createSceneNode(node: FigmaTransferNode): Promise<SceneNode> {
   if (node.kind === "TEXT") {
     return createTextNode(node);
   }
@@ -68,7 +68,7 @@ async function createSceneNode(node: DesignPlanNode): Promise<SceneNode> {
   return frame;
 }
 
-async function createTextNode(node: DesignPlanNode): Promise<TextNode> {
+async function createTextNode(node: FigmaTransferNode): Promise<TextNode> {
   const textNode = figma.createText();
   const baseFontName = resolveFontName(
     node.text?.fontWeight,
@@ -114,12 +114,11 @@ async function createTextNode(node: DesignPlanNode): Promise<TextNode> {
   }
 
   applyTextSegments(textNode, segments);
-  applyMinMaxSizing(textNode, node.layout);
 
   return textNode;
 }
 
-async function createImageNode(node: DesignPlanNode): Promise<FrameNode> {
+async function createImageNode(node: FigmaTransferNode): Promise<FrameNode> {
   const frame = figma.createFrame();
   const width = node.layout.width ?? 160;
   const height = node.layout.height ?? 120;
@@ -147,6 +146,22 @@ async function createImageNode(node: DesignPlanNode): Promise<FrameNode> {
 }
 
 function applyFrameLayout(frame: FrameNode, layout: LayoutHints) {
+  if (layout.mode === "NONE") {
+    frame.layoutMode = "NONE";
+    frame.clipsContent = layout.clipsContent;
+
+    if (layout.width && layout.height) {
+      frame.resize(layout.width, layout.height);
+    } else if (layout.width) {
+      frame.resize(layout.width, frame.height);
+    } else if (layout.height) {
+      frame.resize(frame.width, layout.height);
+    }
+
+    applyMinMaxSizing(frame, layout, false);
+    return;
+  }
+
   frame.layoutMode = layout.mode;
   frame.layoutWrap = layout.wrap;
   frame.itemSpacing = layout.gap;
@@ -158,22 +173,8 @@ function applyFrameLayout(frame: FrameNode, layout: LayoutHints) {
   frame.clipsContent = layout.clipsContent;
   frame.primaryAxisAlignItems = mapPrimaryAlignment(layout.justifyContent);
   frame.counterAxisAlignItems = mapCounterAlignment(layout.alignItems);
-  frame.primaryAxisSizingMode =
-    layout.mode === "VERTICAL"
-      ? layout.height
-        ? "FIXED"
-        : "AUTO"
-      : layout.width
-        ? "FIXED"
-        : "AUTO";
-  frame.counterAxisSizingMode =
-    layout.mode === "VERTICAL"
-      ? layout.width
-        ? "FIXED"
-        : "AUTO"
-      : layout.height
-        ? "FIXED"
-        : "AUTO";
+  frame.primaryAxisSizingMode = resolvePrimaryAxisSizingMode(layout);
+  frame.counterAxisSizingMode = resolveCounterAxisSizingMode(layout);
 
   if (layout.width && layout.height) {
     frame.resize(layout.width, layout.height);
@@ -188,7 +189,7 @@ function applyFrameLayout(frame: FrameNode, layout: LayoutHints) {
     frame.resize(frame.width, layout.height);
   }
 
-  applyMinMaxSizing(frame, layout);
+  applyMinMaxSizing(frame, layout, layout.mode !== "NONE");
 }
 
 async function applyImageAwareFills(
@@ -351,7 +352,7 @@ async function appendImagePlaceholder(frame: FrameNode, alt: string | undefined)
 function appendSceneChild(
   parentFrame: FrameNode,
   sceneChild: SceneNode,
-  childNode: DesignPlanNode,
+  childNode: FigmaTransferNode,
   parentLayout: LayoutHints
 ) {
   const parentChild = shouldWrapMargin(childNode)
@@ -365,14 +366,18 @@ function appendSceneChild(
     return;
   }
 
-  applyAutoLayoutChildBehavior(parentChild, childNode, parentLayout);
+  if (parentLayout.mode !== "NONE") {
+    applyAutoLayoutChildBehavior(parentChild, childNode, parentLayout);
+  } else {
+    applyMinMaxSizing(parentChild, childNode.layout, false);
+  }
 
-  if (parentChild !== sceneChild) {
+  if (parentChild !== sceneChild && parentLayout.mode !== "NONE") {
     applyNestedChildSizing(sceneChild, childNode, parentLayout);
   }
 }
 
-function shouldWrapMargin(node: DesignPlanNode): boolean {
+function shouldWrapMargin(node: FigmaTransferNode): boolean {
   const margin = node.item.margin;
 
   return (
@@ -383,7 +388,7 @@ function shouldWrapMargin(node: DesignPlanNode): boolean {
 
 function wrapSceneChildWithMargin(
   sceneChild: SceneNode,
-  childNode: DesignPlanNode
+  childNode: FigmaTransferNode
 ): FrameNode {
   const wrapper = figma.createFrame();
   const margin = childNode.item.margin;
@@ -408,46 +413,58 @@ function wrapSceneChildWithMargin(
 
 function applyAutoLayoutChildBehavior(
   sceneChild: SceneNode,
-  childNode: DesignPlanNode,
+  childNode: FigmaTransferNode,
   parentLayout: LayoutHints
 ) {
+  const layoutAlign = resolveChildLayoutAlign(childNode, parentLayout);
+
   if ("layoutAlign" in sceneChild) {
-    sceneChild.layoutAlign = mapChildAlignment(
-      childNode.item.alignSelf,
-      parentLayout.alignItems
-    );
+    sceneChild.layoutAlign = layoutAlign;
   }
 
   if ("layoutGrow" in sceneChild) {
     sceneChild.layoutGrow = childNode.item.flexGrow > 0 ? childNode.item.flexGrow : 0;
   }
 
+  enforceAutoLayoutFrameSizingPolicy(
+    sceneChild,
+    childNode,
+    parentLayout,
+    layoutAlign
+  );
+
   applyFlexBasis(sceneChild, childNode, parentLayout);
-  applyMinMaxSizing(sceneChild, childNode.layout);
+  applyMinMaxSizing(sceneChild, childNode.layout, true);
 }
 
 function applyNestedChildSizing(
   sceneChild: SceneNode,
-  childNode: DesignPlanNode,
+  childNode: FigmaTransferNode,
   parentLayout: LayoutHints
 ) {
+  const layoutAlign = resolveChildLayoutAlign(childNode, parentLayout);
+
   if ("layoutAlign" in sceneChild) {
-    sceneChild.layoutAlign = mapChildAlignment(
-      childNode.item.alignSelf,
-      parentLayout.alignItems
-    );
+    sceneChild.layoutAlign = layoutAlign;
   }
 
+  enforceAutoLayoutFrameSizingPolicy(
+    sceneChild,
+    childNode,
+    parentLayout,
+    layoutAlign
+  );
+
   applyFlexBasis(sceneChild, childNode, parentLayout);
-  applyMinMaxSizing(sceneChild, childNode.layout);
+  applyMinMaxSizing(sceneChild, childNode.layout, true);
 }
 
 function applyAbsolutePlacement(
   sceneChild: SceneNode,
-  childNode: DesignPlanNode,
+  childNode: FigmaTransferNode,
   parentLayout: LayoutHints
 ) {
-  if ("layoutPositioning" in sceneChild) {
+  if (parentLayout.mode !== "NONE" && "layoutPositioning" in sceneChild) {
     sceneChild.layoutPositioning = "ABSOLUTE";
   }
 
@@ -475,12 +492,12 @@ function applyAbsolutePlacement(
     sceneChild.y = absoluteY;
   }
 
-  applyMinMaxSizing(sceneChild, childNode.layout);
+  applyMinMaxSizing(sceneChild, childNode.layout, parentLayout.mode !== "NONE");
 }
 
 function applyNodeDecorations(
   frame: FrameNode,
-  appearance: DesignPlanNode["appearance"]
+  appearance: FigmaTransferNode["appearance"]
 ) {
   frame.cornerRadius = appearance.cornerRadius ?? 0;
   frame.opacity = appearance.opacity ?? 1;
@@ -528,7 +545,7 @@ function toShadowEffect(shadow: ShadowHint): DropShadowEffect | InnerShadowEffec
 
 function applyFlexBasis(
   sceneChild: SceneNode,
-  childNode: DesignPlanNode,
+  childNode: FigmaTransferNode,
   parentLayout: LayoutHints
 ) {
   const basis = childNode.item.flexBasis;
@@ -567,32 +584,136 @@ function resizeSceneNode(
 
 function applyMinMaxSizing(
   sceneChild: SceneNode,
-  layout: LayoutHints
+  layout: LayoutHints,
+  parentSupportsChildConstraints: boolean
 ) {
-  if ("minWidth" in sceneChild) {
-    sceneChild.minWidth = layout.minWidth ?? null;
-    sceneChild.maxWidth = layout.maxWidth ?? null;
-    sceneChild.minHeight = layout.minHeight ?? null;
-    sceneChild.maxHeight = layout.maxHeight ?? null;
+  if (
+    !("minWidth" in sceneChild) ||
+    !canApplyMinMaxSizing(sceneChild, parentSupportsChildConstraints)
+  ) {
+    return;
   }
+
+  sceneChild.minWidth = layout.minWidth ?? null;
+  sceneChild.maxWidth = layout.maxWidth ?? null;
+  sceneChild.minHeight = layout.minHeight ?? null;
+  sceneChild.maxHeight = layout.maxHeight ?? null;
 }
 
-function mapChildAlignment(
-  alignSelf: DesignPlanNode["item"]["alignSelf"],
-  parentAlignItems: LayoutHints["alignItems"]
+function resolvePrimaryAxisSizingMode(
+  layout: LayoutHints
+): AutoLayoutMixin["primaryAxisSizingMode"] {
+  if (layout.mode === "VERTICAL") {
+    return layout.height ? "FIXED" : "AUTO";
+  }
+
+  return layout.width ? "FIXED" : "AUTO";
+}
+
+function resolveCounterAxisSizingMode(
+  layout: LayoutHints
+): AutoLayoutMixin["counterAxisSizingMode"] {
+  if (layout.mode === "VERTICAL") {
+    if (layout.width) {
+      return "FIXED";
+    }
+
+    return layout.alignItems === "STRETCH" ? "FIXED" : "AUTO";
+  }
+
+  if (layout.height) {
+    return "FIXED";
+  }
+
+  return layout.alignItems === "STRETCH" ? "FIXED" : "AUTO";
+}
+
+function canApplyMinMaxSizing(
+  sceneChild: SceneNode,
+  parentSupportsChildConstraints: boolean
+): boolean {
+  if (parentSupportsChildConstraints) {
+    return true;
+  }
+
+  return "layoutMode" in sceneChild && sceneChild.layoutMode !== "NONE";
+}
+
+function resolveChildLayoutAlign(
+  childNode: FigmaTransferNode,
+  parentLayout: LayoutHints
 ): AutoLayoutChildrenMixin["layoutAlign"] {
-  switch (alignSelf) {
+  const requestedAlignment = childNode.item.alignSelf;
+  const shouldStretch =
+    requestedAlignment === "STRETCH" ||
+    (requestedAlignment === "AUTO" &&
+      parentLayout.alignItems === "STRETCH" &&
+      !hasExplicitCrossAxisSize(childNode.layout, parentLayout));
+
+  if (shouldStretch) {
+    return "STRETCH";
+  }
+
+  switch (requestedAlignment) {
     case "CENTER":
       return "CENTER";
     case "FLEX_END":
       return "MAX";
-    case "STRETCH":
-      return "STRETCH";
     case "FLEX_START":
       return "MIN";
     default:
-      return parentAlignItems === "STRETCH" ? "STRETCH" : "INHERIT";
+      return "INHERIT";
   }
+}
+
+function enforceAutoLayoutFrameSizingPolicy(
+  sceneChild: SceneNode,
+  childNode: FigmaTransferNode,
+  parentLayout: LayoutHints,
+  layoutAlign: AutoLayoutChildrenMixin["layoutAlign"]
+) {
+  if (!("layoutMode" in sceneChild) || sceneChild.layoutMode === "NONE") {
+    return;
+  }
+
+  if (childNode.item.flexGrow > 0) {
+    if (parentLayout.mode === "HORIZONTAL") {
+      sceneChild.primaryAxisSizingMode = "FIXED";
+      ensureSceneNodeHasCurrentSize(sceneChild);
+    } else {
+      sceneChild.primaryAxisSizingMode = "FIXED";
+      ensureSceneNodeHasCurrentSize(sceneChild);
+    }
+  }
+
+  if (layoutAlign === "STRETCH") {
+    sceneChild.counterAxisSizingMode = "FIXED";
+
+    if (parentLayout.mode === "VERTICAL") {
+      ensureSceneNodeHasCurrentSize(sceneChild);
+    } else {
+      ensureSceneNodeHasCurrentSize(sceneChild);
+    }
+  }
+}
+
+function ensureSceneNodeHasCurrentSize(sceneChild: SceneNode) {
+  if (!("resize" in sceneChild) || !("width" in sceneChild) || !("height" in sceneChild)) {
+    return;
+  }
+
+  sceneChild.resize(sceneChild.width, sceneChild.height);
+}
+
+function hasExplicitCrossAxisSize(
+  layout: LayoutHints,
+  parentLayout: LayoutHints
+): boolean {
+  if (parentLayout.mode === "VERTICAL") {
+    return layout.width !== undefined;
+  }
+
+  return layout.height !== undefined;
 }
 
 function resolveAbsoluteCoordinate(

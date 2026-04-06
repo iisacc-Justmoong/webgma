@@ -41,7 +41,7 @@ async function handleConvertMessage(payload: ConversionRequest) {
   try {
     figma.notify("Starting static HTML/CSS analysis...");
     const conversionResponse = convertHtmlCssToDesign(payload);
-    const renderedNode = await renderDesignPlan(conversionResponse.designPlan);
+    const renderedNode = await renderDesignPlan(conversionResponse.figmaTransfer);
 
     figma.currentPage.selection = [renderedNode];
     figma.viewport.scrollAndZoomIntoView([renderedNode]);

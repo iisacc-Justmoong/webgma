@@ -9,15 +9,25 @@ describe("render design plan", () => {
       "utf8"
     );
 
+    expect(renderCode).toContain("FigmaTransferDocument");
+    expect(renderCode).toContain("FigmaTransferNode");
     expect(renderCode).toContain("frame.strokes = appearance.strokes.map");
     expect(renderCode).toContain('frame.strokeAlign = "INSIDE"');
     expect(renderCode).toContain("frame.effects = appearance.shadows.map");
     expect(renderCode).toContain("function toShadowEffect");
+    expect(renderCode).toContain("if (layout.mode === \"NONE\")");
     expect(renderCode).toContain("frame.layoutWrap = layout.wrap");
     expect(renderCode).toContain("sceneChild.layoutPositioning = \"ABSOLUTE\"");
     expect(renderCode).toContain("sceneChild.layoutGrow = childNode.item.flexGrow");
     expect(renderCode).toContain("wrapSceneChildWithMargin");
     expect(renderCode).toContain("node.layout.width || node.layout.maxWidth ? \"HEIGHT\"");
     expect(renderCode).toContain("textNode.resize(node.layout.maxWidth, textNode.height)");
+    expect(renderCode).toContain("if (parentLayout.mode !== \"NONE\")");
+    expect(renderCode).toContain("resolvePrimaryAxisSizingMode");
+    expect(renderCode).toContain("resolveCounterAxisSizingMode");
+    expect(renderCode).toContain("resolveChildLayoutAlign");
+    expect(renderCode).toContain("enforceAutoLayoutFrameSizingPolicy");
+    expect(renderCode).toContain("canApplyMinMaxSizing");
+    expect(renderCode).not.toContain("applyMinMaxSizing(textNode, node.layout)");
   });
 });

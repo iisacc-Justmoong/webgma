@@ -11,6 +11,7 @@ describe("plugin code", () => {
 
     expect(pluginCode).toContain('type: "resize-ui"');
     expect(pluginCode).toContain("figma.ui.resize");
+    expect(pluginCode).toContain("conversionResponse.figmaTransfer");
     expect(pluginCode).toContain("height: 860");
     expect(pluginCode).not.toContain("visible: false");
     expect(pluginCode).not.toContain("figma.ui.show()");

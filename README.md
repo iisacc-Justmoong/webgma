@@ -9,7 +9,8 @@ Webgma is a Figma plugin scaffold that turns HTML and CSS into a starter Figma l
 3. `Mode 2` accepts HTML code and CSS code through two text editors.
 4. The plugin merges CSS into HTML with static selector analysis.
 5. The merged inline HTML becomes the source of truth for the design plan.
-6. The plugin renders that design plan into Figma frames and text nodes.
+6. The plugin converts that design plan into a Figma-safe transfer document.
+7. The plugin renders that transfer document into Figma frames and text nodes.
 
 ## Repository layout
 
@@ -38,6 +39,9 @@ manifest.json
 
 The current static-analysis scaffold already handles:
 
+- centralized CSS loading through `src/shared/services/css-content-loader.ts`, including escaped HTML normalization, embedded `<style>` extraction, and stylesheet dependency stripping
+- centralized CSS-to-Figma reinterpretation through `src/shared/services/figma-style-interpreter.ts`, which converts inline CSS into Figma-oriented layout, item-placement, appearance, and text hints
+- centralized Figma handoff preparation through `src/shared/services/figma-transfer-service.ts`, which sanitizes the interpreted node tree into a renderer-safe transfer object
 - tag, class, and id based CSS inlining
 - decoding of escaped HTML input before DOM parsing
 - extraction of embedded `<style>` blocks and removal of stylesheet `<link>` dependencies from the merged output
@@ -74,9 +78,15 @@ The next implementation phase should expand selector coverage, improve cascade f
 - the test suite compiles a temporary plugin bundle and fails if unsupported syntax survives bundling
 - the root manifest is for development import, while `build/release/manifest.json` is generated for distribution packaging
 - CSS is forced into inline HTML whenever possible, and flattening diagnostics are surfaced when selector or rule fidelity is reduced
+- CSS loading is now isolated from CSS inlining so future parser work can expand from one shared source-loading layer
+- CSS-to-Figma reinterpretation is now isolated from DOM traversal so style translation policy can evolve without rewriting the design-plan tree mapper
+- Figma handoff preparation is now isolated from both interpretation and rendering so illegal or unsafe values can be normalized before the plugin touches the Figma runtime
 - frame appearance is no longer limited to fills; border strokes and box shadows are also preserved in the design plan and renderer
 - the design-plan layer now carries container layout hints and child placement hints separately so more CSS survives translation into Figma
+- the renderer no longer consumes the raw design plan directly; it consumes a sanitized `figmaTransfer` payload that drops unsupported image sources, normalizes min/max ranges, and clips illegal numeric values before Figma setters run
 - text nodes honor `max-width` during Figma rendering so long copy can wrap instead of expanding the root frame horizontally
+- Figma `min/max` sizing constraints are now applied only on eligible auto-layout nodes or auto-layout children to avoid runtime setter errors
+- the renderer now follows Figma-oriented auto-layout policy more closely: `NONE` frames skip auto-layout-only setters, and auto-layout frame children that use fill or stretch are forced onto Figma-compatible fixed axes
 
 ## Deployment
 

@@ -1,5 +1,6 @@
-import { HTMLElement, parse } from "node-html-parser";
+import { HTMLElement } from "node-html-parser";
 import type { StyleMap } from "../contracts.js";
+import { loadCssContent } from "./css-content-loader.js";
 
 interface CssRule {
   declarations: StyleMap;
@@ -46,34 +47,20 @@ export function mergeHtmlWithCssWithDiagnostics(
   html: string,
   css: string
 ): InlineHtmlMergeResult {
-  const normalizedHtml = normalizeHtmlSource(html);
-
-  if (!normalizedHtml) {
-    throw new Error("HTML content is required.");
-  }
-
-  const documentNode = parse(normalizedHtml, {
-    blockTextElements: {
-      script: false,
-      noscript: false,
-      style: true,
-      pre: true
-    }
-  });
-  const embeddedCss = extractEmbeddedStyles(documentNode);
-  removeStylesheetDependencies(documentNode);
-  const combinedCss = [embeddedCss, css].filter(Boolean).join("\n");
+  const loadedCss = loadCssContent(html, css);
+  const documentNode = loadedCss.documentNode;
+  const combinedCss = loadedCss.css;
 
   if (!combinedCss.trim()) {
     return {
       mergedHtml: documentNode.toString(),
-      warnings: []
+      warnings: [...loadedCss.warnings]
     };
   }
 
   const stylesheet = parseStylesheet(combinedCss);
   const appliedStyles = new Map<HTMLElement, Map<string, AppliedDeclaration>>();
-  const warnings = [...stylesheet.warnings];
+  const warnings = [...loadedCss.warnings, ...stylesheet.warnings];
 
   for (const rule of stylesheet.rules) {
     for (const selector of rule.selectors) {
@@ -147,45 +134,6 @@ export function mergeHtmlWithCssWithDiagnostics(
     mergedHtml: documentNode.toString(),
     warnings
   };
-}
-
-function extractEmbeddedStyles(documentNode: HTMLElement): string {
-  return documentNode
-    .querySelectorAll("style")
-    .map((styleElement) => styleElement.innerHTML.trim())
-    .filter(Boolean)
-    .join("\n");
-}
-
-function removeStylesheetDependencies(documentNode: HTMLElement) {
-  for (const styleElement of documentNode.querySelectorAll("style")) {
-    styleElement.remove();
-  }
-
-  for (const linkElement of documentNode.querySelectorAll("link")) {
-    const relAttribute = (linkElement.getAttribute("rel") ?? "")
-      .toLowerCase()
-      .trim();
-    const relTokens = relAttribute.split(/\s+/).filter(Boolean);
-
-    if (relTokens.includes("stylesheet")) {
-      linkElement.remove();
-    }
-  }
-}
-
-function normalizeHtmlSource(html: string): string {
-  const trimmedHtml = html.trim();
-
-  if (
-    !trimmedHtml ||
-    containsHtmlLikeMarkup(trimmedHtml) ||
-    !looksLikeEscapedHtml(trimmedHtml)
-  ) {
-    return trimmedHtml;
-  }
-
-  return decodeHtmlEntities(trimmedHtml).trim();
 }
 
 function parseStylesheet(css: string): ParsedStylesheet {
@@ -299,13 +247,6 @@ function parseStylesheet(css: string): ParsedStylesheet {
   };
 }
 
-function containsHtmlLikeMarkup(value: string): boolean {
-  return /<\/?[a-zA-Z!][^>]*>/.test(value);
-}
-
-function looksLikeEscapedHtml(value: string): boolean {
-  return /&lt;\/?[a-zA-Z!][^&]*&gt;/.test(value);
-}
 
 function parseDeclarationBlock(block: string): StyleMap {
   return block
@@ -635,20 +576,6 @@ function omitGeneratedContent(declarations: StyleMap): StyleMap {
   return nextDeclarations;
 }
 
-function decodeHtmlEntities(value: string): string {
-  return value
-    .replace(/&lt;/gi, "<")
-    .replace(/&gt;/gi, ">")
-    .replace(/&quot;/gi, '"')
-    .replace(/&#39;|&apos;/gi, "'")
-    .replace(/&amp;/gi, "&")
-    .replace(/&#(\d+);/g, (_, codePoint) =>
-      String.fromCodePoint(Number.parseInt(codePoint, 10))
-    )
-    .replace(/&#x([0-9a-f]+);/gi, (_, codePoint) =>
-      String.fromCodePoint(Number.parseInt(codePoint, 16))
-    );
-}
 
 function findDocumentRootTargets(documentNode: HTMLElement): HTMLElement[] {
   const htmlElement = documentNode.querySelector("html");

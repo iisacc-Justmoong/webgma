@@ -4,6 +4,7 @@ import type {
   SourceInput
 } from "../contracts.js";
 import { createDesignPlan } from "./design-plan-service.js";
+import { createFigmaTransferDocument } from "./figma-transfer-service.js";
 import { mergeHtmlWithCssWithDiagnostics } from "./inline-html-service.js";
 
 const STATIC_ANALYSIS_WARNING =
@@ -18,11 +19,18 @@ export function convertHtmlCssToDesign(
     normalizedRequest.css.content
   );
   const mergedHtml = mergeResult.mergedHtml;
+  const designPlan = createDesignPlan(mergedHtml);
+  const figmaTransfer = createFigmaTransferDocument(designPlan);
 
   return {
     mergedHtml,
-    designPlan: createDesignPlan(mergedHtml),
-    warnings: [STATIC_ANALYSIS_WARNING, ...mergeResult.warnings]
+    designPlan,
+    figmaTransfer,
+    warnings: [
+      STATIC_ANALYSIS_WARNING,
+      ...mergeResult.warnings,
+      ...figmaTransfer.warnings
+    ]
   };
 }
 
