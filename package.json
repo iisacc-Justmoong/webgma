@@ -1,0 +1,31 @@
+{
+  "name": "Webgma",
+  "version": "1.0.0",
+  "description": "Figma plugin scaffold for HTML/CSS to inline HTML and design-plan conversion.",
+  "type": "module",
+  "scripts": {
+    "clean": "rm -rf build",
+    "build": "npm run clean && npm run build:plugin && npm run build:backend",
+    "build:plugin": "node scripts/build-plugin.mjs",
+    "build:backend": "esbuild src/backend/server.ts --bundle --platform=node --format=esm --target=node20 --outfile=build/backend/server.js",
+    "dev:backend": "tsx watch src/backend/server.ts",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "juice": "^11.0.3",
+    "node-html-parser": "^7.0.1"
+  },
+  "devDependencies": {
+    "@figma/plugin-typings": "^1.113.0",
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.6.1",
+    "@types/supertest": "^6.0.3",
+    "esbuild": "^0.25.10",
+    "supertest": "^7.1.4",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
+  },
+  "private": true
+}

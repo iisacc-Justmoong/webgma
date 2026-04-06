@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Webgma</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        font-family: Inter, system-ui, sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: #0f172a;
+        color: #e2e8f0;
+      }
+
+      main {
+        display: grid;
+        grid-template-rows: auto 1fr auto auto;
+        gap: 16px;
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .header {
+        display: grid;
+        gap: 8px;
+      }
+
+      .header h1 {
+        margin: 0;
+        font-size: 22px;
+      }
+
+      .header p {
+        margin: 0;
+        color: #94a3b8;
+        line-height: 1.5;
+      }
+
+      .backend {
+        display: grid;
+        gap: 8px;
+      }
+
+      .panes {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .pane {
+        display: grid;
+        grid-template-rows: auto auto 1fr;
+        gap: 10px;
+        min-height: 420px;
+        padding: 16px;
+        border: 1px solid rgba(148, 163, 184, 0.22);
+        border-radius: 16px;
+        background: rgba(15, 23, 42, 0.7);
+      }
+
+      .pane-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+      }
+
+      .pane-header h2 {
+        margin: 0;
+        font-size: 16px;
+      }
+
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      label {
+        display: grid;
+        gap: 6px;
+        font-size: 13px;
+        color: #cbd5e1;
+      }
+
+      input[type="text"],
+      textarea {
+        width: 100%;
+        border: 1px solid rgba(148, 163, 184, 0.28);
+        border-radius: 12px;
+        background: rgba(15, 23, 42, 0.8);
+        color: inherit;
+      }
+
+      input[type="text"] {
+        height: 40px;
+        padding: 0 12px;
+      }
+
+      textarea {
+        min-height: 300px;
+        padding: 14px;
+        resize: vertical;
+        font: 13px/1.5 "SFMono-Regular", Consolas, monospace;
+      }
+
+      input[type="file"] {
+        color: #cbd5e1;
+      }
+
+      button {
+        height: 44px;
+        border: 0;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #38bdf8, #22c55e);
+        color: #082f49;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      button.secondary {
+        background: rgba(148, 163, 184, 0.16);
+        color: #e2e8f0;
+      }
+
+      .status,
+      .output {
+        padding: 16px;
+        border: 1px solid rgba(148, 163, 184, 0.22);
+        border-radius: 16px;
+        background: rgba(15, 23, 42, 0.7);
+      }
+
+      .status {
+        display: grid;
+        gap: 8px;
+      }
+
+      .status strong {
+        font-size: 14px;
+      }
+
+      .output pre {
+        overflow: auto;
+        white-space: pre-wrap;
+        word-break: break-word;
+        margin: 0;
+        font: 12px/1.6 "SFMono-Regular", Consolas, monospace;
+      }
+
+      @media (max-width: 900px) {
+        .panes {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="header">
+        <h1>Webgma</h1>
+        <p>
+          Paste HTML and CSS or load them from files. The plugin forwards both
+          sources to the backend, receives a merged inline HTML source, then
+          builds a starter Figma layout from the generated design plan.
+        </p>
+      </section>
+
+      <section class="backend">
+        <label for="backend-url">Backend URL</label>
+        <input
+          id="backend-url"
+          type="text"
+          value="http://localhost:8787"
+          spellcheck="false"
+        />
+      </section>
+
+      <section class="panes">
+        <article class="pane">
+          <div class="pane-header">
+            <h2>HTML Source</h2>
+            <input id="html-file" type="file" accept=".html,.htm,.txt" />
+          </div>
+          <div class="controls">
+            <button class="secondary" id="load-html-sample" type="button">
+              Load sample
+            </button>
+          </div>
+          <textarea id="html-input" spellcheck="false"></textarea>
+        </article>
+
+        <article class="pane">
+          <div class="pane-header">
+            <h2>CSS Source</h2>
+            <input id="css-file" type="file" accept=".css,.txt" />
+          </div>
+          <div class="controls">
+            <button class="secondary" id="load-css-sample" type="button">
+              Load sample
+            </button>
+          </div>
+          <textarea id="css-input" spellcheck="false"></textarea>
+        </article>
+      </section>
+
+      <section class="status">
+        <strong id="status-title">Ready</strong>
+        <div id="status-description">
+          Waiting for HTML and CSS input.
+        </div>
+        <button id="convert-button" type="button">Merge and create Figma layout</button>
+        <button class="secondary" id="close-button" type="button">
+          Close
+        </button>
+      </section>
+
+      <section class="output">
+        <strong>Merged HTML preview</strong>
+        <pre id="merged-output">No conversion yet.</pre>
+      </section>
+    </main>
+
+    <script>
+      const htmlInput = document.getElementById("html-input");
+      const cssInput = document.getElementById("css-input");
+      const htmlFileInput = document.getElementById("html-file");
+      const cssFileInput = document.getElementById("css-file");
+      const backendUrlInput = document.getElementById("backend-url");
+      const convertButton = document.getElementById("convert-button");
+      const closeButton = document.getElementById("close-button");
+      const statusTitle = document.getElementById("status-title");
+      const statusDescription = document.getElementById("status-description");
+      const mergedOutput = document.getElementById("merged-output");
+      const loadHtmlSampleButton = document.getElementById("load-html-sample");
+      const loadCssSampleButton = document.getElementById("load-css-sample");
+
+      const htmlSample = `<section class="hero">
+  <div class="card">
+    <span class="eyebrow">Webgma</span>
+    <h1>HTML to Figma</h1>
+    <p>Inline CSS becomes the source of truth for the generated design plan.</p>
+  </div>
+</section>`;
+
+      const cssSample = `.hero {
+  display: flex;
+  justify-content: center;
+  padding: 48px;
+  background: #0f172a;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 24px;
+  border-radius: 20px;
+  background: #f8fafc;
+}
+
+.eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  color: #2563eb;
+}
+
+h1 {
+  font-size: 32px;
+  color: #0f172a;
+}
+
+p {
+  font-size: 16px;
+  line-height: 24px;
+  color: #475569;
+}`;
+
+      loadHtmlSampleButton.addEventListener("click", () => {
+        htmlInput.value = htmlSample;
+      });
+
+      loadCssSampleButton.addEventListener("click", () => {
+        cssInput.value = cssSample;
+      });
+
+      convertButton.addEventListener("click", () => {
+        setStatus("Converting", "Sending HTML and CSS to the backend.");
+
+        parent.postMessage(
+          {
+            pluginMessage: {
+              type: "convert",
+              payload: {
+                backendUrl: backendUrlInput.value,
+                html: {
+                  content: htmlInput.value,
+                  mode: htmlFileInput.files.length ? "file" : "code",
+                  name: htmlFileInput.files[0]?.name
+                },
+                css: {
+                  content: cssInput.value,
+                  mode: cssFileInput.files.length ? "file" : "code",
+                  name: cssFileInput.files[0]?.name
+                }
+              }
+            }
+          },
+          "*"
+        );
+      });
+
+      closeButton.addEventListener("click", () => {
+        parent.postMessage(
+          {
+            pluginMessage: {
+              type: "close"
+            }
+          },
+          "*"
+        );
+      });
+
+      htmlFileInput.addEventListener("change", () => {
+        loadFileContent(htmlFileInput, htmlInput);
+      });
+
+      cssFileInput.addEventListener("change", () => {
+        loadFileContent(cssFileInput, cssInput);
+      });
+
+      window.onmessage = (event) => {
+        const { pluginMessage } = event.data ?? {};
+
+        if (!pluginMessage) {
+          return;
+        }
+
+        if (pluginMessage.type === "convert:success") {
+          const warnings = pluginMessage.payload.warnings?.length
+            ? ` Warnings: ${pluginMessage.payload.warnings.join(" ")}`
+            : "";
+
+          setStatus(
+            "Completed",
+            `Merged HTML received and Figma layout generated.${warnings}`
+          );
+          mergedOutput.textContent = pluginMessage.payload.mergedHtml;
+        }
+
+        if (pluginMessage.type === "convert:error") {
+          setStatus("Failed", pluginMessage.payload.message);
+        }
+      };
+
+      async function loadFileContent(fileInput, target) {
+        const file = fileInput.files[0];
+
+        if (!file) {
+          return;
+        }
+
+        target.value = await file.text();
+      }
+
+      function setStatus(title, description) {
+        statusTitle.textContent = title;
+        statusDescription.textContent = description;
+      }
+
+      htmlInput.value = htmlSample;
+      cssInput.value = cssSample;
+    </script>
+  </body>
+</html>
