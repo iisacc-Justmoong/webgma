@@ -21,7 +21,7 @@
 
       main {
         display: grid;
-        grid-template-rows: auto auto 1fr auto auto;
+        grid-template-rows: auto auto 1fr auto;
         gap: 16px;
         min-height: 100vh;
         padding: 20px;
@@ -44,8 +44,7 @@
       }
 
       .mode-switcher,
-      .status,
-      .output {
+      .status {
         padding: 16px;
         border: 1px solid rgba(148, 163, 184, 0.22);
         border-radius: 16px;
@@ -136,7 +135,6 @@
         line-height: 1.5;
       }
 
-      .controls,
       .code-input,
       .file-input,
       .status {
@@ -197,14 +195,6 @@
         color: #e2e8f0;
       }
 
-      .output pre {
-        overflow: auto;
-        white-space: pre-wrap;
-        word-break: break-word;
-        margin: 0;
-        font: 12px/1.6 "SFMono-Regular", Consolas, monospace;
-      }
-
       @media (max-width: 900px) {
         .mode-options,
         .panes {
@@ -219,8 +209,7 @@
         <h1>Webgma</h1>
         <p>
           HTML과 CSS를 정적으로 분석해 피그마 디자인을 생성합니다.
-          변환은 플러그인 내부에서 직접 수행되며 브라우저 백엔드에
-          의존하지 않습니다.
+          샘플 입력이나 브라우저 프리뷰 없이 실제 입력만 받아 변환합니다.
         </p>
       </section>
 
@@ -282,11 +271,6 @@
             </div>
           </div>
           <div class="mode-panel code-input" id="html-code-panel">
-            <div class="controls">
-              <button class="secondary" id="load-html-sample" type="button">
-                Load sample
-              </button>
-            </div>
             <label for="html-input">
               HTML Code
               <textarea
@@ -317,11 +301,6 @@
             </div>
           </div>
           <div class="mode-panel code-input" id="css-code-panel">
-            <div class="controls">
-              <button class="secondary" id="load-css-sample" type="button">
-                Load sample
-              </button>
-            </div>
             <label for="css-input">
               CSS Code
               <textarea
@@ -347,11 +326,6 @@
           Close
         </button>
       </section>
-
-      <section class="output">
-        <strong>Merged HTML preview</strong>
-        <pre id="merged-output">No conversion yet.</pre>
-      </section>
     </main>
 
     <script>
@@ -369,73 +343,12 @@
       const closeButton = document.getElementById("close-button");
       const statusTitle = document.getElementById("status-title");
       const statusDescription = document.getElementById("status-description");
-      const mergedOutput = document.getElementById("merged-output");
       const modeDescription = document.getElementById("mode-description");
-      const loadHtmlSampleButton = document.getElementById("load-html-sample");
-      const loadCssSampleButton = document.getElementById("load-css-sample");
       const inputModeRadios = Array.from(
         document.querySelectorAll('input[name="input-mode"]')
       );
-      const isBrowserPreviewMode = window.parent === window;
-
-      const htmlSample = `<section class="hero">
-  <div class="card">
-    <span class="eyebrow">Webgma</span>
-    <h1>HTML to Figma</h1>
-    <p>Static analysis turns HTML and CSS into a Figma starter layout.</p>
-  </div>
-</section>`;
-
-      const cssSample = `.hero {
-  display: flex;
-  justify-content: center;
-  padding: 48px;
-  background: #0f172a;
-}
-
-.card {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 24px;
-  border-radius: 20px;
-  background: #f8fafc;
-}
-
-.eyebrow {
-  font-size: 12px;
-  font-weight: 700;
-  color: #2563eb;
-}
-
-h1 {
-  font-size: 32px;
-  color: #0f172a;
-}
-
-p {
-  font-size: 16px;
-  line-height: 24px;
-  color: #475569;
-}`;
-
-      loadHtmlSampleButton.addEventListener("click", () => {
-        htmlInput.value = htmlSample;
-      });
-
-      loadCssSampleButton.addEventListener("click", () => {
-        cssInput.value = cssSample;
-      });
 
       convertButton.addEventListener("click", async () => {
-        if (isBrowserPreviewMode) {
-          setStatus(
-            "Browser preview only",
-            "Static analysis and Figma node creation run inside the Figma plugin runtime."
-          );
-          return;
-        }
-
         try {
           setStatus("Analyzing", "Running static analysis for HTML and CSS.");
           const payload = await buildPayload();
@@ -458,14 +371,6 @@ p {
       });
 
       closeButton.addEventListener("click", () => {
-        if (isBrowserPreviewMode) {
-          setStatus(
-            "Browser preview only",
-            "Close is only available inside the Figma plugin."
-          );
-          return;
-        }
-
         parent.postMessage(
           {
             pluginMessage: {
@@ -506,7 +411,6 @@ p {
             "Completed",
             `Static analysis finished and a Figma layout was generated.${warnings}`
           );
-          mergedOutput.textContent = pluginMessage.payload.mergedHtml;
         }
 
         if (pluginMessage.type === "convert:error") {
@@ -581,14 +485,6 @@ p {
             "Mode 2 is active. Enter HTML code and CSS code in the editors below.";
         }
 
-        if (isBrowserPreviewMode) {
-          setStatus(
-            "Browser preview only",
-            `UI preview is active. ${waitingMessage} Static analysis runs only inside the Figma plugin runtime.`
-          );
-          return;
-        }
-
         setStatus("Ready", waitingMessage);
       }
 
@@ -607,15 +503,9 @@ p {
         statusDescription.textContent = description;
       }
 
-      htmlInput.value = htmlSample;
-      cssInput.value = cssSample;
       updateFileMeta("html");
       updateFileMeta("css");
       syncInputModeUi();
-
-      if (isBrowserPreviewMode) {
-        closeButton.disabled = true;
-      }
     </script>
   </body>
 </html>

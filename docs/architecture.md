@@ -18,7 +18,7 @@ The product goal is:
   - provides one global input mode switch
   - `Mode 1` accepts HTML and CSS files
   - `Mode 2` accepts HTML and CSS code
-  - is also reused as the browser preview shell
+  - intentionally excludes sample loaders and preview UI
 - `src/plugin/code.ts`
   - owns the Figma plugin lifecycle
   - runs static HTML/CSS analysis directly in the plugin runtime
@@ -39,25 +39,18 @@ The product goal is:
   - produces a normalized tree of frames and text nodes
   - derives layout, appearance, and text hints for the renderer
 - `src/shared/contracts.ts`
-  - keeps the plugin and preview server in sync on request and response types
-
-### Preview server side
-
-- `src/backend/app.ts`
-  - serves the browser preview shell at `/`
-- `src/backend/views/plugin-ui-preview.ts`
-  - loads the plugin UI HTML for preview mode
+  - keeps the plugin data contracts explicit
 
 ## Why this split
 
 - static analysis belongs in a shared layer so the plugin owns conversion directly
 - the plugin stays focused on Figma-specific node creation after analysis
-- the preview server is reduced to UI hosting and no longer sits on the conversion path
+- the UI stays minimal and only collects real user input
 
 ## Immediate next steps
 
 1. Add support for more selector types, margins, borders, and richer typography.
 2. Improve CSS cascade fidelity for conflicting selectors and inheritance.
 3. Introduce a stable node identity strategy so repeated imports can update existing nodes.
-4. Add fixture-based regression tests for larger HTML/CSS samples.
+4. Add fixture-based regression tests for larger HTML/CSS cases.
 5. Report unsupported CSS explicitly instead of silently dropping it.

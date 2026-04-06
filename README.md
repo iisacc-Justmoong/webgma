@@ -2,12 +2,6 @@
 
 Webgma is a Figma plugin scaffold that turns HTML and CSS into a starter Figma layout through static analysis.
 
-## What changed
-
-- the plugin no longer sends conversion requests to a browser backend
-- HTML and CSS are analyzed directly inside the plugin runtime
-- the browser server is now only for previewing the UI shell during development
-
 ## Current flow
 
 1. Choose one global input mode in the plugin UI.
@@ -21,11 +15,6 @@ Webgma is a Figma plugin scaffold that turns HTML and CSS into a starter Figma l
 
 ```text
 src/
-  backend/
-    app.ts
-    config.ts
-    server.ts
-    views/
   plugin/
     code.ts
     render-design-plan.ts
@@ -55,20 +44,11 @@ The next implementation phase should expand selector coverage, improve cascade f
 
 ## Scripts
 
-- `npm run build`: bundle the plugin and preview server into `build/`
-- `npm run dev:backend`: run the browser preview server in watch mode
+- `npm run build`: bundle the plugin into `build/`
 - `npm test`: run the unit and interface tests
-
-## Browser preview
-
-After running `npm run dev:backend`, open [http://localhost:8787](http://localhost:8787).
-
-- `/` serves the same UI shell used by the plugin
-- the preview is for interface inspection only
-- static analysis and Figma node creation still run only inside the plugin runtime
 
 ## Notes
 
-- `manifest.json` no longer requires network access for conversion
-- the preview server does not expose a conversion API anymore
+- the plugin no longer includes sample input helpers
+- the plugin no longer includes browser or merged-output preview features
 - unsupported CSS should be added in the shared static-analysis layer and renderer, not bypassed in the UI

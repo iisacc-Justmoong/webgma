@@ -48,16 +48,18 @@ describe("plugin UI", () => {
     expect(uiHtml).toContain("CSS File");
   });
 
-  it("supports browser preview mode messaging", () => {
+  it("does not include sample controls or preview sections", () => {
     const uiHtml = readFileSync(
       resolve(process.cwd(), "src/plugin/ui.html"),
       "utf8"
     );
 
-    expect(uiHtml).toContain("const isBrowserPreviewMode = window.parent === window;");
-    expect(uiHtml).toContain("Browser preview only");
-    expect(uiHtml).not.toContain("backend-url");
-    expect(uiHtml).not.toContain("/v1/convert");
+    expect(uiHtml).not.toContain("Load sample");
+    expect(uiHtml).not.toContain("Merged HTML preview");
+    expect(uiHtml).not.toContain("merged-output");
+    expect(uiHtml).not.toContain("isBrowserPreviewMode");
+    expect(uiHtml).not.toContain("htmlSample");
+    expect(uiHtml).not.toContain("cssSample");
     expect(uiHtml).toContain("Mode 1 requires an HTML file.");
     expect(uiHtml).toContain("Mode 1 requires a CSS file.");
   });
