@@ -48,6 +48,48 @@
         gap: 8px;
       }
 
+      .mode-switcher {
+        display: grid;
+        gap: 12px;
+        padding: 16px;
+        border: 1px solid rgba(148, 163, 184, 0.22);
+        border-radius: 16px;
+        background: rgba(15, 23, 42, 0.7);
+      }
+
+      .mode-options {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .mode-option {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+        padding: 14px;
+        border: 1px solid rgba(148, 163, 184, 0.24);
+        border-radius: 14px;
+        background: rgba(15, 23, 42, 0.8);
+        cursor: pointer;
+      }
+
+      .mode-option input {
+        margin-top: 3px;
+      }
+
+      .mode-option strong {
+        display: block;
+        margin-bottom: 4px;
+        font-size: 14px;
+      }
+
+      .mode-option span {
+        color: #94a3b8;
+        font-size: 12px;
+        line-height: 1.5;
+      }
+
       .panes {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -83,6 +125,11 @@
         gap: 8px;
       }
 
+      .file-input {
+        display: grid;
+        gap: 10px;
+      }
+
       .pane-copy {
         display: grid;
         gap: 6px;
@@ -98,6 +145,10 @@
       .code-input {
         display: grid;
         gap: 8px;
+      }
+
+      .mode-panel[hidden] {
+        display: none;
       }
 
       label {
@@ -130,6 +181,17 @@
 
       input[type="file"] {
         color: #cbd5e1;
+      }
+
+      .file-meta {
+        min-height: 48px;
+        padding: 12px 14px;
+        border: 1px dashed rgba(148, 163, 184, 0.28);
+        border-radius: 12px;
+        color: #cbd5e1;
+        font-size: 12px;
+        line-height: 1.5;
+        background: rgba(15, 23, 42, 0.55);
       }
 
       button {
@@ -173,6 +235,10 @@
       }
 
       @media (max-width: 900px) {
+        .mode-options {
+          grid-template-columns: 1fr;
+        }
+
         .panes {
           grid-template-columns: 1fr;
         }
@@ -184,10 +250,9 @@
       <section class="header">
         <h1>Webgma</h1>
         <p>
-          Enter HTML code and CSS code in two separate editors. File upload is
-          optional. The plugin forwards both sources to the backend, receives a
-          merged inline HTML source, then builds a starter Figma layout from
-          the generated design plan.
+          Choose one input mode for both sources. Mode 1 accepts HTML and CSS
+          files. Mode 2 keeps the current code-editor workflow with two text
+          inputs.
         </p>
       </section>
 
@@ -201,59 +266,115 @@
         />
       </section>
 
+      <section class="mode-switcher">
+        <strong>Input Mode</strong>
+        <div class="mode-options" role="radiogroup" aria-label="Input mode">
+          <label class="mode-option" for="input-mode-file">
+            <input
+              id="input-mode-file"
+              name="input-mode"
+              type="radio"
+              value="file"
+            />
+            <div>
+              <strong>Mode 1 · File Input</strong>
+              <span>
+                Use HTML and CSS files as arguments. Each pane shows a file
+                picker and selected-file state.
+              </span>
+            </div>
+          </label>
+          <label class="mode-option" for="input-mode-code">
+            <input
+              id="input-mode-code"
+              name="input-mode"
+              type="radio"
+              value="code"
+              checked
+            />
+            <div>
+              <strong>Mode 2 · Code Input</strong>
+              <span>
+                Use the existing workflow with two text editors for HTML and
+                CSS code.
+              </span>
+            </div>
+          </label>
+        </div>
+        <div id="mode-description">
+          Mode 2 is active. Enter HTML code and CSS code in the editors below.
+        </div>
+      </section>
+
       <section class="panes">
         <article class="pane">
           <div class="pane-header">
             <h2>HTML Source</h2>
-            <input id="html-file" type="file" accept=".html,.htm,.txt" />
           </div>
           <div class="pane-copy">
             <p>
-              Primary code input for raw HTML markup. Paste code directly or
-              load an HTML file to populate the editor.
+              HTML source panel. The visible input control depends on the
+              current mode.
             </p>
           </div>
-          <div class="controls">
-            <button class="secondary" id="load-html-sample" type="button">
-              Load sample
-            </button>
+          <div class="mode-panel file-input" id="html-file-panel" hidden>
+            <label for="html-file">HTML File</label>
+            <input id="html-file" type="file" accept=".html,.htm,.txt" />
+            <div class="file-meta" id="html-file-meta">
+              No HTML file selected.
+            </div>
           </div>
-          <label class="code-input" for="html-input">
-            HTML Code
-            <textarea
-              id="html-input"
-              spellcheck="false"
-              aria-label="HTML code input"
-              placeholder="Paste HTML code here"
-            ></textarea>
-          </label>
+          <div class="mode-panel code-input" id="html-code-panel">
+            <div class="controls">
+              <button class="secondary" id="load-html-sample" type="button">
+                Load sample
+              </button>
+            </div>
+            <label for="html-input">
+              HTML Code
+              <textarea
+                id="html-input"
+                spellcheck="false"
+                aria-label="HTML code input"
+                placeholder="Paste HTML code here"
+              ></textarea>
+            </label>
+          </div>
         </article>
 
         <article class="pane">
           <div class="pane-header">
             <h2>CSS Source</h2>
-            <input id="css-file" type="file" accept=".css,.txt" />
           </div>
           <div class="pane-copy">
             <p>
-              Primary code input for stylesheet content. Paste CSS directly or
-              load a stylesheet file to populate the editor.
+              CSS source panel. The visible input control depends on the
+              current mode.
             </p>
           </div>
-          <div class="controls">
-            <button class="secondary" id="load-css-sample" type="button">
-              Load sample
-            </button>
+          <div class="mode-panel file-input" id="css-file-panel" hidden>
+            <label for="css-file">CSS File</label>
+            <input id="css-file" type="file" accept=".css,.txt" />
+            <div class="file-meta" id="css-file-meta">
+              No CSS file selected.
+            </div>
           </div>
-          <label class="code-input" for="css-input">
-            CSS Code
-            <textarea
-              id="css-input"
-              spellcheck="false"
-              aria-label="CSS code input"
-              placeholder="Paste CSS code here"
-            ></textarea>
-          </label>
+          <div class="mode-panel code-input" id="css-code-panel">
+            <div class="controls">
+              <button class="secondary" id="load-css-sample" type="button">
+                Load sample
+              </button>
+            </div>
+            <label for="css-input">
+              CSS Code
+              <textarea
+                id="css-input"
+                spellcheck="false"
+                aria-label="CSS code input"
+                placeholder="Paste CSS code here"
+              ></textarea>
+            </label>
+          </div>
         </article>
       </section>
 
@@ -279,14 +400,25 @@
       const cssInput = document.getElementById("css-input");
       const htmlFileInput = document.getElementById("html-file");
       const cssFileInput = document.getElementById("css-file");
+      const htmlFilePanel = document.getElementById("html-file-panel");
+      const cssFilePanel = document.getElementById("css-file-panel");
+      const htmlCodePanel = document.getElementById("html-code-panel");
+      const cssCodePanel = document.getElementById("css-code-panel");
+      const htmlFileMeta = document.getElementById("html-file-meta");
+      const cssFileMeta = document.getElementById("css-file-meta");
       const backendUrlInput = document.getElementById("backend-url");
       const convertButton = document.getElementById("convert-button");
       const closeButton = document.getElementById("close-button");
       const statusTitle = document.getElementById("status-title");
       const statusDescription = document.getElementById("status-description");
       const mergedOutput = document.getElementById("merged-output");
+      const modeDescription = document.getElementById("mode-description");
       const loadHtmlSampleButton = document.getElementById("load-html-sample");
       const loadCssSampleButton = document.getElementById("load-css-sample");
+      const inputModeRadios = Array.from(
+        document.querySelectorAll('input[name="input-mode"]')
+      );
+      const isBrowserPreviewMode = window.parent === window;
 
       const htmlSample = `<section class="hero">
   <div class="card">
@@ -337,33 +469,42 @@ p {
         cssInput.value = cssSample;
       });
 
-      convertButton.addEventListener("click", () => {
-        setStatus("Converting", "Sending HTML and CSS to the backend.");
+      convertButton.addEventListener("click", async () => {
+        try {
+          setStatus("Converting", "Sending HTML and CSS to the backend.");
+          const payload = await buildPayload();
 
-        parent.postMessage(
-          {
-            pluginMessage: {
-              type: "convert",
-              payload: {
-                backendUrl: backendUrlInput.value,
-                html: {
-                  content: htmlInput.value,
-                  mode: htmlFileInput.files.length ? "file" : "code",
-                  name: htmlFileInput.files[0]?.name
-                },
-                css: {
-                  content: cssInput.value,
-                  mode: cssFileInput.files.length ? "file" : "code",
-                  name: cssFileInput.files[0]?.name
-                }
+          if (isBrowserPreviewMode) {
+            previewConversion(payload);
+            return;
+          }
+
+          parent.postMessage(
+            {
+              pluginMessage: {
+                type: "convert",
+                payload
               }
-            }
-          },
-          "*"
-        );
+            },
+            "*"
+          );
+        } catch (error) {
+          setStatus(
+            "Input error",
+            error instanceof Error ? error.message : "Unexpected input error."
+          );
+        }
       });
 
       closeButton.addEventListener("click", () => {
+        if (isBrowserPreviewMode) {
+          setStatus(
+            "Browser preview mode",
+            "Close is only available inside the Figma plugin."
+          );
+          return;
+        }
+
         parent.postMessage(
           {
             pluginMessage: {
@@ -375,11 +516,17 @@ p {
       });
 
       htmlFileInput.addEventListener("change", () => {
-        loadFileContent(htmlFileInput, htmlInput);
+        updateFileMeta("html");
       });
 
       cssFileInput.addEventListener("change", () => {
-        loadFileContent(cssFileInput, cssInput);
+        updateFileMeta("css");
+      });
+
+      inputModeRadios.forEach((radio) => {
+        radio.addEventListener("change", () => {
+          syncInputModeUi();
+        });
       });
 
       window.onmessage = (event) => {
@@ -406,23 +553,145 @@ p {
         }
       };
 
-      async function loadFileContent(fileInput, target) {
-        const file = fileInput.files[0];
-
-        if (!file) {
-          return;
-        }
-
-        target.value = await file.text();
-      }
-
       function setStatus(title, description) {
         statusTitle.textContent = title;
         statusDescription.textContent = description;
       }
 
+      async function buildPayload() {
+        const inputMode = getSelectedInputMode();
+
+        if (inputMode === "file") {
+          const htmlFile = htmlFileInput.files[0];
+          const cssFile = cssFileInput.files[0];
+
+          if (!htmlFile) {
+            throw new Error("Mode 1 requires an HTML file.");
+          }
+
+          if (!cssFile) {
+            throw new Error("Mode 1 requires a CSS file.");
+          }
+
+          return {
+            backendUrl: backendUrlInput.value,
+            html: {
+              content: await htmlFile.text(),
+              mode: "file",
+              name: htmlFile.name
+            },
+            css: {
+              content: await cssFile.text(),
+              mode: "file",
+              name: cssFile.name
+            }
+          };
+        }
+
+        return {
+          backendUrl: backendUrlInput.value,
+          html: {
+            content: htmlInput.value,
+            mode: "code",
+            name: undefined
+          },
+          css: {
+            content: cssInput.value,
+            mode: "code",
+            name: undefined
+          }
+        };
+      }
+
+      async function previewConversion(payload) {
+        try {
+          const response = await fetch(`${normalizeBackendUrl(payload.backendUrl)}/v1/convert`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              html: payload.html,
+              css: payload.css
+            })
+          });
+          const body = await response.json();
+
+          if (!response.ok) {
+            throw new Error(body.error || "Conversion request failed.");
+          }
+
+          mergedOutput.textContent = body.mergedHtml;
+          setStatus(
+            "Browser preview completed",
+            "Merged HTML was generated. Figma node creation is only available inside the plugin runtime."
+          );
+        } catch (error) {
+          setStatus(
+            "Browser preview failed",
+            error instanceof Error ? error.message : "Unexpected preview error."
+          );
+        }
+      }
+
+      function normalizeBackendUrl(value) {
+        return (value || "http://localhost:8787").replace(/\/$/, "");
+      }
+
+      function getSelectedInputMode() {
+        return inputModeRadios.find((radio) => radio.checked)?.value || "code";
+      }
+
+      function syncInputModeUi() {
+        const inputMode = getSelectedInputMode();
+        const isFileMode = inputMode === "file";
+        const waitingMessage = isFileMode
+          ? "Waiting for HTML and CSS files."
+          : "Waiting for HTML code and CSS code input.";
+
+        htmlFilePanel.hidden = !isFileMode;
+        cssFilePanel.hidden = !isFileMode;
+        htmlCodePanel.hidden = isFileMode;
+        cssCodePanel.hidden = isFileMode;
+
+        if (isFileMode) {
+          modeDescription.textContent =
+            "Mode 1 is active. Select one HTML file and one CSS file.";
+        } else {
+          modeDescription.textContent =
+            "Mode 2 is active. Enter HTML code and CSS code in the editors below.";
+        }
+
+        if (isBrowserPreviewMode) {
+          setStatus(
+            "Browser preview mode",
+            `UI preview is active. ${waitingMessage} Figma node creation still requires the plugin runtime.`
+          );
+          return;
+        }
+
+        setStatus("Ready", waitingMessage);
+      }
+
+      function updateFileMeta(sourceType) {
+        const fileInput = sourceType === "html" ? htmlFileInput : cssFileInput;
+        const metaNode = sourceType === "html" ? htmlFileMeta : cssFileMeta;
+        const selectedFile = fileInput.files[0];
+
+        metaNode.textContent = selectedFile
+          ? `${selectedFile.name} selected (${selectedFile.type || "text/plain"}, ${selectedFile.size} bytes).`
+          : `No ${sourceType.toUpperCase()} file selected.`;
+      }
+
       htmlInput.value = htmlSample;
       cssInput.value = cssSample;
+      updateFileMeta("html");
+      updateFileMeta("css");
+      syncInputModeUi();
+
+      if (isBrowserPreviewMode) {
+        closeButton.disabled = true;
+      }
     </script>
   </body>
 </html>

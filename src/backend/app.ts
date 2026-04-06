@@ -6,6 +6,7 @@ import type {
 } from "../shared/contracts.js";
 import { createDesignPlan } from "./services/design-plan-service.js";
 import { mergeHtmlWithCss } from "./services/inline-html-service.js";
+import { loadPluginUiPreviewHtml } from "./views/plugin-ui-preview.js";
 
 const CSS_SUPPORT_WARNING =
   "Current scaffold maps inline styles, flex auto layout, spacing, solid fills, and basic text styles.";
@@ -14,6 +15,10 @@ export function createApp() {
   const app = express();
 
   app.use(express.json({ limit: "1mb" }));
+
+  app.get("/", (_request, response) => {
+    response.type("html").send(loadPluginUiPreviewHtml());
+  });
 
   app.get("/health", (_request, response) => {
     response.json({ status: "ok" });

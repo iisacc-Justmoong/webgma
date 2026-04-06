@@ -3,6 +3,19 @@ import { describe, expect, it } from "vitest";
 import { createApp } from "../src/backend/app.js";
 
 describe("createApp", () => {
+  it("serves the browser preview UI at the root route", async () => {
+    const app = createApp();
+    const response = await request(app).get("/");
+
+    expect(response.status).toBe(200);
+    expect(response.headers["content-type"]).toMatch(/text\/html/);
+    expect(response.text).toContain("Mode 1 · File Input");
+    expect(response.text).toContain("Mode 2 · Code Input");
+    expect(response.text).toContain("HTML File");
+    expect(response.text).toContain("CSS Code");
+    expect(response.text).toContain("Browser preview mode");
+  });
+
   it("returns merged HTML and a design plan", async () => {
     const app = createApp();
     const response = await request(app).post("/v1/convert").send({

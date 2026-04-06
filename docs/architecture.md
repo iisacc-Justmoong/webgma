@@ -16,8 +16,9 @@ The current repository state establishes the first version of the architecture w
 ### Plugin side
 
 - `src/plugin/ui.html`
-  - provides two explicit code editors: one for HTML and one for CSS
-  - lets the operator paste code directly or load files into those editors
+  - provides a global input mode switch
+  - `Mode 1` accepts HTML and CSS files as arguments
+  - `Mode 2` accepts HTML and CSS code through two text editors
   - shows merged HTML output and warnings
 - `src/plugin/code.ts`
   - owns the Figma plugin lifecycle
@@ -32,12 +33,15 @@ The current repository state establishes the first version of the architecture w
 - `src/backend/app.ts`
   - defines the HTTP API surface
   - validates request payloads
+  - serves a browser preview of the plugin UI at `/`
 - `src/backend/services/inline-html-service.ts`
   - merges CSS into HTML using `juice`
 - `src/backend/services/design-plan-service.ts`
   - parses merged inline HTML
   - produces a normalized tree of frames and text nodes
   - derives layout, appearance, and text hints for the plugin renderer
+- `src/backend/views/plugin-ui-preview.ts`
+  - loads the plugin UI HTML for browser preview mode
 
 ### Shared contract
 
