@@ -48,14 +48,29 @@ export function normalizeConversionRequest(
 
   return {
     html: normalizeSourceInput(candidate.html, "html"),
-    css: normalizeSourceInput(candidate.css, "css")
+    css: normalizeSourceInput(candidate.css, "css", {
+      allowEmptyContent: true,
+      defaultMode: "code"
+    })
   };
 }
 
 export function normalizeSourceInput(
   value: unknown,
-  label: string
+  label: string,
+  options?: {
+    allowEmptyContent?: boolean;
+    defaultMode?: SourceInput["mode"];
+  }
 ): SourceInput {
+  if (value === undefined && options?.allowEmptyContent) {
+    return {
+      content: "",
+      mode: options.defaultMode ?? "code",
+      name: undefined
+    };
+  }
+
   if (typeof value !== "object" || value === null) {
     throw new Error(`${label.toUpperCase()} input must be an object.`);
   }
@@ -69,7 +84,11 @@ export function normalizeSourceInput(
   const mode = candidate.mode;
   const name = candidate.name;
 
-  if (typeof content !== "string" || !content.trim()) {
+  if (typeof content !== "string") {
+    throw new Error(`${label.toUpperCase()} content is required.`);
+  }
+
+  if (!options?.allowEmptyContent && !content.trim()) {
     throw new Error(`${label.toUpperCase()} content is required.`);
   }
 

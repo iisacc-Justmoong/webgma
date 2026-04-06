@@ -57,6 +57,31 @@ describe("convertHtmlCssToDesign", () => {
     );
   });
 
+  it("accepts HTML-only conversion when CSS input is empty or omitted", () => {
+    const emptyCssResult = convertHtmlCssToDesign({
+      html: {
+        content: '<main><section><h1>Hello</h1></section></main>',
+        mode: "file",
+        name: "page.html"
+      },
+      css: {
+        content: "",
+        mode: "file"
+      }
+    });
+    const missingCssResult = convertHtmlCssToDesign({
+      html: {
+        content: "<div><p>Hello</p></div>",
+        mode: "code"
+      }
+    } as never);
+
+    expect(emptyCssResult.mergedHtml).toContain("<main>");
+    expect(emptyCssResult.designPlan.root.children[0]?.kind).toBe("FRAME");
+    expect(missingCssResult.mergedHtml).toContain("<div>");
+    expect(missingCssResult.designPlan.root.children[0]?.children[0]?.kind).toBe("TEXT");
+  });
+
   it("parses escaped HTML input as markup instead of a single text node", () => {
     const result = convertHtmlCssToDesign({
       html: {

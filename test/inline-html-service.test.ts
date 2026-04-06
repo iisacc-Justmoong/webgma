@@ -169,6 +169,40 @@ describe("mergeHtmlWithCss", () => {
     );
   });
 
+  it("generates default fallback values for missing style tokens during CSS inlining", () => {
+    const mergeResult = mergeHtmlWithCssWithDiagnostics(
+      `
+        <div class="card">
+          <a class="cta">Open</a>
+        </div>
+      `,
+      `
+        .card {
+          background: var(--surface-elevated);
+          padding: var(--space-lg);
+          border-radius: var(--radius-card);
+        }
+
+        .cta {
+          color: var(--text-primary);
+          font-size: var(--font-size-body);
+        }
+      `
+    );
+
+    expect(mergeResult.mergedHtml).toMatch(/background:\s*#ffffff/i);
+    expect(mergeResult.mergedHtml).toMatch(/padding:\s*16px/i);
+    expect(mergeResult.mergedHtml).toMatch(/border-radius:\s*12px/i);
+    expect(mergeResult.mergedHtml).toMatch(/color:\s*#111827/i);
+    expect(mergeResult.mergedHtml).toMatch(/font-size:\s*16px/i);
+    expect(mergeResult.warnings).toContain(
+      "Generated default fallback for missing CSS token --surface-elevated: #ffffff."
+    );
+    expect(mergeResult.warnings).toContain(
+      "Generated default fallback for missing CSS token --space-lg: 16px."
+    );
+  });
+
   it("keeps structural pseudo selectors that the selector engine can resolve", () => {
     const mergeResult = mergeHtmlWithCssWithDiagnostics(
       `

@@ -303,7 +303,7 @@
             <div>
               <strong>Mode 1 · File Input</strong>
               <span>
-                Accept one HTML file and one CSS file. The selected file
+                Accept one HTML file and an optional CSS file. The selected
                 contents are analyzed directly inside the plugin runtime.
               </span>
             </div>
@@ -319,13 +319,14 @@
             <div>
               <strong>Mode 2 · Code Input</strong>
               <span>
-                Accept HTML code and CSS code through two dedicated editors.
+                Accept HTML code and optional CSS code through two dedicated
+                editors.
               </span>
             </div>
           </label>
         </div>
         <div id="mode-description">
-          Mode 2 is active. Enter HTML code and CSS code in the editors below.
+          Mode 2 is active. Enter HTML code. CSS code is optional.
         </div>
       </section>
 
@@ -367,14 +368,15 @@
           <div class="pane-copy">
             <p>
               This panel collects the CSS source. It switches between file
-              input and code input based on the active mode.
+              input and code input based on the active mode. CSS is optional in
+              both modes.
             </p>
           </div>
           <div class="mode-panel file-input" id="css-file-panel" hidden>
             <label for="css-file">CSS File</label>
             <input id="css-file" type="file" accept=".css,.txt" />
             <div class="file-meta" id="css-file-meta">
-              No CSS file selected.
+              No CSS file selected. HTML-only conversion is allowed.
             </div>
           </div>
           <div class="mode-panel code-input" id="css-code-panel">
@@ -394,7 +396,7 @@
       <section class="status">
         <strong id="status-title">Ready</strong>
         <div id="status-description">
-          Waiting for HTML code and CSS code input.
+          Waiting for HTML code. CSS code is optional.
         </div>
         <button id="convert-button" type="button">
           Analyze and create Figma layout
@@ -458,7 +460,7 @@
 
       convertButton.addEventListener("click", async () => {
         try {
-          setStatus("Analyzing", "Running static analysis for HTML and CSS.");
+          setStatus("Analyzing", "Running static analysis for the provided sources.");
           const payload = await buildPayload();
 
           parent.postMessage(
@@ -574,10 +576,6 @@
             throw new Error("Mode 1 requires an HTML file.");
           }
 
-          if (!cssFile) {
-            throw new Error("Mode 1 requires a CSS file.");
-          }
-
           return {
             html: {
               content: await htmlFile.text(),
@@ -585,9 +583,9 @@
               name: htmlFile.name
             },
             css: {
-              content: await cssFile.text(),
+              content: cssFile ? await cssFile.text() : "",
               mode: "file",
-              name: cssFile.name
+              name: cssFile?.name
             }
           };
         }
@@ -614,8 +612,8 @@
         const inputMode = getSelectedInputMode();
         const isFileMode = inputMode === "file";
         const waitingMessage = isFileMode
-          ? "Waiting for HTML and CSS files."
-          : "Waiting for HTML code and CSS code input.";
+          ? "Waiting for an HTML file. CSS file is optional."
+          : "Waiting for HTML code. CSS code is optional.";
 
         htmlFilePanel.hidden = !isFileMode;
         cssFilePanel.hidden = !isFileMode;
@@ -624,10 +622,10 @@
 
         if (isFileMode) {
           modeDescription.textContent =
-            "Mode 1 is active. Select one HTML file and one CSS file.";
+            "Mode 1 is active. Select one HTML file. CSS file is optional.";
         } else {
           modeDescription.textContent =
-            "Mode 2 is active. Enter HTML code and CSS code in the editors below.";
+            "Mode 2 is active. Enter HTML code. CSS code is optional.";
         }
 
         setStatus("Ready", waitingMessage);

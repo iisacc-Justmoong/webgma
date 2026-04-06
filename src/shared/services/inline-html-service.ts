@@ -1,6 +1,7 @@
 import { HTMLElement } from "node-html-parser";
 import type { StyleMap } from "../contracts.js";
 import { loadCssContent } from "./css-content-loader.js";
+import { implementStyleDeclarations } from "./style-implementation-service.js";
 
 interface CssRule {
   declarations: StyleMap;
@@ -128,7 +129,7 @@ export function mergeHtmlWithCssWithDiagnostics(
     }
   }
 
-  mergeInlineStyles(documentNode, appliedStyles);
+  mergeInlineStyles(documentNode, appliedStyles, warnings);
 
   return {
     mergedHtml: documentNode.toString(),
@@ -591,7 +592,8 @@ function findDocumentRootTargets(documentNode: HTMLElement): HTMLElement[] {
 
 function mergeInlineStyles(
   documentNode: HTMLElement,
-  appliedStyles: Map<HTMLElement, Map<string, AppliedDeclaration>>
+  appliedStyles: Map<HTMLElement, Map<string, AppliedDeclaration>>,
+  warnings: string[]
 ) {
   const inheritedCustomProperties = new Map<string, string>();
 
@@ -600,7 +602,8 @@ function mergeInlineStyles(
       applyResolvedStylesRecursively(
         childNode,
         appliedStyles,
-        inheritedCustomProperties
+        inheritedCustomProperties,
+        warnings
       );
     }
   }
@@ -609,7 +612,8 @@ function mergeInlineStyles(
 function applyResolvedStylesRecursively(
   element: HTMLElement,
   appliedStyles: Map<HTMLElement, Map<string, AppliedDeclaration>>,
-  inheritedCustomProperties: Map<string, string>
+  inheritedCustomProperties: Map<string, string>,
+  warnings: string[]
 ) {
   const declarationsForElement =
     appliedStyles.get(element) ?? new Map<string, AppliedDeclaration>();
@@ -623,29 +627,23 @@ function applyResolvedStylesRecursively(
     });
   }
 
-  const resolvedCustomProperties = new Map(inheritedCustomProperties);
-
-  for (const [property, declaration] of getDeclarationsInOrder(declarationsForElement)) {
-    if (!property.startsWith("--")) {
-      continue;
-    }
-
-    resolvedCustomProperties.set(
+  const orderedDeclarations = Object.fromEntries(
+    getDeclarationsInOrder(declarationsForElement).map(([property, declaration]) => [
       property,
-      resolveCssVariables(declaration.value, resolvedCustomProperties)
-    );
+      declaration.value
+    ])
+  );
+  const implementation = implementStyleDeclarations(
+    orderedDeclarations,
+    inheritedCustomProperties
+  );
+
+  for (const warning of implementation.warnings) {
+    addWarning(warnings, warning);
   }
 
-  const serializedDeclarations = getDeclarationsInOrder(declarationsForElement)
-    .filter(([property]) => !property.startsWith("--"))
-    .map(([property, declaration]) => ({
-      property,
-      order: declaration.order,
-      value: resolveCssVariables(declaration.value, resolvedCustomProperties)
-    }))
-    .filter((declaration) => declaration.value.trim().length > 0)
-    .sort((left, right) => left.order - right.order)
-    .map((declaration) => `${declaration.property}: ${declaration.value}`)
+  const serializedDeclarations = Object.entries(implementation.resolvedStyles)
+    .map(([property, value]) => `${property}: ${value}`)
     .join("; ");
 
   if (serializedDeclarations) {
@@ -659,7 +657,8 @@ function applyResolvedStylesRecursively(
       applyResolvedStylesRecursively(
         childNode,
         appliedStyles,
-        resolvedCustomProperties
+        implementation.customProperties,
+        warnings
       );
     }
   }
@@ -671,142 +670,4 @@ function getDeclarationsInOrder(
   return [...declarations.entries()].sort(
     (leftEntry, rightEntry) => leftEntry[1].order - rightEntry[1].order
   );
-}
-
-function resolveCssVariables(
-  value: string,
-  customProperties: Map<string, string>,
-  seenProperties = new Set<string>()
-): string {
-  let resolvedValue = value;
-  let guard = 0;
-
-  while (resolvedValue.includes("var(") && guard < 32) {
-    const nextValue = resolveSingleVariablePass(
-      resolvedValue,
-      customProperties,
-      seenProperties
-    );
-
-    if (nextValue === resolvedValue) {
-      break;
-    }
-
-    resolvedValue = nextValue;
-    guard += 1;
-  }
-
-  return resolvedValue;
-}
-
-function resolveSingleVariablePass(
-  value: string,
-  customProperties: Map<string, string>,
-  seenProperties: Set<string>
-): string {
-  let result = "";
-
-  for (let index = 0; index < value.length; index += 1) {
-    if (!value.startsWith("var(", index)) {
-      result += value[index];
-      continue;
-    }
-
-    const closingIndex = findMatchingParenthesis(value, index + 3);
-
-    if (closingIndex < 0) {
-      result += value[index];
-      continue;
-    }
-
-    const expression = value.slice(index + 4, closingIndex);
-    const [propertyName, fallbackValue] = splitVarExpression(expression);
-    const resolvedProperty = propertyName
-      ? resolveCustomPropertyValue(propertyName, customProperties, seenProperties)
-      : undefined;
-    const nextValue =
-      resolvedProperty ??
-      (fallbackValue
-        ? resolveCssVariables(fallbackValue, customProperties, seenProperties)
-        : `var(${expression})`);
-
-    result += nextValue;
-    index = closingIndex;
-  }
-
-  return result;
-}
-
-function resolveCustomPropertyValue(
-  propertyName: string,
-  customProperties: Map<string, string>,
-  seenProperties: Set<string>
-): string | undefined {
-  const normalizedPropertyName = propertyName.trim();
-
-  if (!normalizedPropertyName || seenProperties.has(normalizedPropertyName)) {
-    return undefined;
-  }
-
-  const rawValue = customProperties.get(normalizedPropertyName);
-
-  if (rawValue === undefined) {
-    return undefined;
-  }
-
-  seenProperties.add(normalizedPropertyName);
-  const resolvedValue = resolveCssVariables(rawValue, customProperties, seenProperties);
-  seenProperties.delete(normalizedPropertyName);
-
-  return resolvedValue;
-}
-
-function splitVarExpression(expression: string): [string | undefined, string | undefined] {
-  let depth = 0;
-
-  for (let index = 0; index < expression.length; index += 1) {
-    const character = expression[index];
-
-    if (character === "(") {
-      depth += 1;
-      continue;
-    }
-
-    if (character === ")") {
-      depth = Math.max(depth - 1, 0);
-      continue;
-    }
-
-    if (character === "," && depth === 0) {
-      return [
-        expression.slice(0, index).trim(),
-        expression.slice(index + 1).trim()
-      ];
-    }
-  }
-
-  return [expression.trim(), undefined];
-}
-
-function findMatchingParenthesis(source: string, openingIndex: number): number {
-  let depth = 0;
-
-  for (let index = openingIndex; index < source.length; index += 1) {
-    const character = source[index];
-
-    if (character === "(") {
-      depth += 1;
-      continue;
-    }
-
-    if (character === ")") {
-      depth -= 1;
-
-      if (depth === 0) {
-        return index;
-      }
-    }
-  }
-
-  return -1;
 }

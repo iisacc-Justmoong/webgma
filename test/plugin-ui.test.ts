@@ -13,6 +13,9 @@ describe("plugin UI", () => {
     expect(uiHtml).toContain("Mode 1 · File Input");
     expect(uiHtml).toContain('id="input-mode-code"');
     expect(uiHtml).toContain("Mode 2 · Code Input");
+    expect(uiHtml).toContain(
+      "Accept HTML code and optional CSS code through two dedicated"
+    );
   });
 
   it("contains dedicated HTML and CSS code input editors", () => {
@@ -32,6 +35,7 @@ describe("plugin UI", () => {
     expect(uiHtml).toContain('id="css-input"');
     expect(uiHtml).toContain('aria-label="CSS code input"');
     expect(uiHtml).toContain('placeholder="Paste CSS code here"');
+    expect(uiHtml).toMatch(/CSS is optional in\s+both modes\./);
   });
 
   it("contains dedicated HTML and CSS file inputs", () => {
@@ -46,6 +50,7 @@ describe("plugin UI", () => {
     expect(uiHtml).toContain('id="css-file-panel"');
     expect(uiHtml).toContain('id="css-file"');
     expect(uiHtml).toContain("CSS File");
+    expect(uiHtml).toContain("HTML-only conversion is allowed.");
   });
 
   it("contains resize controls and English-only interface copy", () => {
@@ -83,6 +88,10 @@ describe("plugin UI", () => {
     expect(uiHtml).not.toContain("htmlSample");
     expect(uiHtml).not.toContain("cssSample");
     expect(uiHtml).toContain("Mode 1 requires an HTML file.");
-    expect(uiHtml).toContain("Mode 1 requires a CSS file.");
+    expect(uiHtml).not.toContain("Mode 1 requires a CSS file.");
+    expect(uiHtml).toContain("CSS file is optional.");
+    expect(uiHtml).toContain("CSS code is optional.");
+    expect(uiHtml).toContain("Waiting for HTML code. CSS code is optional.");
+    expect(uiHtml).toContain("Mode 2 is active. Enter HTML code. CSS code is optional.");
   });
 });

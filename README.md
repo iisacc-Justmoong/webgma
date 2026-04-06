@@ -5,12 +5,13 @@ Webgma is a Figma plugin scaffold that turns HTML and CSS into a starter Figma l
 ## Current flow
 
 1. Choose one global input mode in the plugin UI.
-2. `Mode 1` accepts one HTML file and one CSS file.
-3. `Mode 2` accepts HTML code and CSS code through two text editors.
-4. The plugin merges CSS into HTML with static selector analysis.
-5. The merged inline HTML becomes the source of truth for the design plan.
-6. The plugin converts that design plan into a Figma-safe transfer document.
-7. The plugin renders that transfer document into Figma frames and text nodes.
+2. `Mode 1` accepts one HTML file and an optional CSS file.
+3. `Mode 2` accepts HTML code and optional CSS code through two text editors.
+4. The convert action stays permissive in both modes: HTML is required, CSS is optional.
+5. The plugin merges CSS into HTML with static selector analysis.
+6. The merged inline HTML becomes the source of truth for the design plan.
+7. The plugin converts that design plan into a Figma-safe transfer document.
+8. The plugin renders that transfer document into Figma frames and text nodes.
 
 ## Repository layout
 
@@ -41,12 +42,15 @@ The current static-analysis scaffold already handles:
 
 - centralized CSS loading through `src/shared/services/css-content-loader.ts`, including escaped HTML normalization, embedded `<style>` extraction, and stylesheet dependency stripping
 - centralized CSS-to-Figma reinterpretation through `src/shared/services/figma-style-interpreter.ts`, which converts inline CSS into Figma-oriented layout, item-placement, appearance, and text hints
+- centralized style implementation through `src/shared/services/style-implementation-service.ts`, which generates default fallback values for missing CSS tokens and resolves declarations into concrete inline styles
 - centralized Figma handoff preparation through `src/shared/services/figma-transfer-service.ts`, which sanitizes the interpreted node tree into a renderer-safe transfer object
 - tag, class, and id based CSS inlining
+- HTML-only conversion when CSS input is empty or omitted
 - decoding of escaped HTML input before DOM parsing
 - extraction of embedded `<style>` blocks and removal of stylesheet `<link>` dependencies from the merged output
 - normalization of `:root`, `:where()`, and `:is()` selectors into inlineable selectors
 - resolution of CSS custom properties so `var(--token)` values become concrete inline styles
+- generation of default fallback values for missing style tokens such as color, spacing, radius, typography, and shadow tokens
 - preservation of selector-engine-supported structural selectors such as `:not()`, `:first-child`, and `:nth-child()`
 - flex direction, gap, padding, width, height
 - flex wrap, row/column gap, overflow clipping, min/max sizing
@@ -79,6 +83,7 @@ The next implementation phase should expand selector coverage, improve cascade f
 - the root manifest is for development import, while `build/release/manifest.json` is generated for distribution packaging
 - CSS is forced into inline HTML whenever possible, and flattening diagnostics are surfaced when selector or rule fidelity is reduced
 - CSS loading is now isolated from CSS inlining so future parser work can expand from one shared source-loading layer
+- style implementation is now isolated from selector matching so token fallback policy and declaration resolution can evolve without rewriting the merger
 - CSS-to-Figma reinterpretation is now isolated from DOM traversal so style translation policy can evolve without rewriting the design-plan tree mapper
 - Figma handoff preparation is now isolated from both interpretation and rendering so illegal or unsafe values can be normalized before the plugin touches the Figma runtime
 - frame appearance is no longer limited to fills; border strokes and box shadows are also preserved in the design plan and renderer

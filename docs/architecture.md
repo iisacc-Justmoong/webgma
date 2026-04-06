@@ -5,6 +5,8 @@
 The product goal is:
 
 1. receive HTML and CSS from files or code inputs
+1.1. allow HTML-only imports when CSS is missing
+1.2. keep the convert action permissive in both file mode and code mode, so CSS omission does not block auto-layout generation
 2. statically analyze both sources inside the plugin
 3. merge CSS into a single inline HTML source
 4. treat that merged HTML as the source of truth
@@ -18,8 +20,8 @@ The product goal is:
 
 - `src/plugin/ui.html`
   - provides one global input mode switch
-  - `Mode 1` accepts HTML and CSS files
-  - `Mode 2` accepts HTML and CSS code
+  - `Mode 1` accepts an HTML file and an optional CSS file
+  - `Mode 2` accepts HTML code and optional CSS code
   - keeps all visible UI copy in English
   - measures the rendered content and requests a fit-to-content resize after load
   - intentionally excludes sample loaders and preview UI
@@ -48,12 +50,17 @@ The product goal is:
 
 - `src/shared/services/conversion-service.ts`
   - validates the HTML/CSS payload
+  - treats CSS input as optional so HTML-only conversion can still produce auto-layout frames
   - runs the end-to-end static conversion flow
 - `src/shared/services/css-content-loader.ts`
   - normalizes escaped HTML input before any CSS processing starts
   - extracts embedded `<style>` blocks into explicit CSS sources
   - removes stylesheet dependencies from the HTML so the merged output can become a single self-contained document
   - centralizes CSS source loading so selector parsing and design-plan generation can share one normalized HTML/CSS entry point
+- `src/shared/services/style-implementation-service.ts`
+  - generates default fallback values for missing CSS custom properties based on style-token names and declaration context
+  - resolves custom properties and explicit `var(...)` usage into concrete declarations before inline HTML serialization
+  - centralizes style-token policy so CSS implementation quality can improve without rewriting selector matching
 - `src/shared/services/figma-style-interpreter.ts`
   - reinterprets merged inline CSS into Figma-oriented layout, item-placement, appearance, and text hints
   - centralizes the policy for translating CSS values into the subset that the renderer can legally apply inside Figma
@@ -64,6 +71,7 @@ The product goal is:
   - normalizes illegal or risky values before the Figma runtime sees them, including invalid min/max ranges, out-of-bounds colors and opacity values, broken text ranges, and unsupported image URLs
 - `src/shared/services/inline-html-service.ts`
   - consumes the shared CSS content loader instead of loading HTML/CSS sources itself
+  - consumes the shared style implementation service instead of resolving custom properties inline by itself
   - applies CSS declarations to HTML through static selector matching
   - resolves CSS custom properties and normalizes inlineable functional selectors such as `:root` and `:where(...)`
   - preserves structural pseudo selectors when the underlying selector engine can resolve them
