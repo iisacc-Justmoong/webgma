@@ -1,16 +1,21 @@
 # Webgma
 
-Webgma is a Figma plugin scaffold for a pipeline with two responsibilities:
+Webgma is a Figma plugin scaffold that turns HTML and CSS into a starter Figma layout through static analysis.
 
-1. Collect HTML and CSS either from uploaded files or from code editors.
-2. Merge both sources into a single inline-styled HTML document and treat that merged HTML as the source of truth for Figma generation.
+## What changed
 
-The repository now contains the minimum project shape to start implementing the full workflow:
+- the plugin no longer sends conversion requests to a browser backend
+- HTML and CSS are analyzed directly inside the plugin runtime
+- the browser server is now only for previewing the UI shell during development
 
-- a Figma plugin shell with two input modes
-- a Node.js backend skeleton that merges HTML and CSS
-- a design-plan generator that extracts a starter layout tree from inline styles
-- tests and documentation for the current scaffold
+## Current flow
+
+1. Choose one global input mode in the plugin UI.
+2. `Mode 1` accepts one HTML file and one CSS file.
+3. `Mode 2` accepts HTML code and CSS code through two text editors.
+4. The plugin merges CSS into HTML with static selector analysis.
+5. The merged inline HTML becomes the source of truth for the design plan.
+6. The plugin renders that design plan into Figma frames and text nodes.
 
 ## Repository layout
 
@@ -20,13 +25,14 @@ src/
     app.ts
     config.ts
     server.ts
-    services/
+    views/
   plugin/
     code.ts
     render-design-plan.ts
     ui.html
   shared/
     contracts.ts
+    services/
 docs/
   architecture.md
 scripts/
@@ -36,45 +42,33 @@ test/
 manifest.json
 ```
 
-## Current flow
-
-1. The plugin UI exposes one global mode selector.
-2. In `Mode 1`, the operator provides one HTML file and one CSS file.
-3. In `Mode 2`, the operator provides HTML code and CSS code through two text editors.
-4. The plugin main thread posts the request to the backend.
-5. The backend uses `juice` to inline CSS into the HTML document.
-6. The backend turns merged inline HTML into a design plan.
-7. The plugin maps the design plan to starter Figma nodes with auto-layout hints.
-
 ## Supported scaffold scope
 
-The current scaffold is intentionally narrow. It already handles:
+The current static-analysis scaffold already handles:
 
-- CSS inlining through the backend
+- tag, class, and id based CSS inlining
 - flex direction, gap, padding, width, height
 - background color, opacity, border radius
 - basic text size, weight, line height, alignment, and color
 
-The next implementation phase should expand CSS coverage, improve text/font mapping, and harden layout parity with browser rendering.
+The next implementation phase should expand selector coverage, improve cascade fidelity, and harden layout parity with browser rendering.
 
 ## Scripts
 
-- `npm run build`: bundle the plugin and backend into `build/`
-- `npm run dev:backend`: run the backend in watch mode
-- `npm test`: run the unit and API tests
+- `npm run build`: bundle the plugin and preview server into `build/`
+- `npm run dev:backend`: run the browser preview server in watch mode
+- `npm test`: run the unit and interface tests
 
 ## Browser preview
 
 After running `npm run dev:backend`, open [http://localhost:8787](http://localhost:8787).
 
-- `/` now serves the same two-input interface used by the plugin UI
-- `Mode 1` in the browser preview accepts uploaded HTML/CSS files
-- `Mode 2` in the browser preview accepts pasted HTML/CSS code
-- in browser mode, the page can call `POST /v1/convert` and preview the merged HTML
-- Figma node creation still requires the actual plugin runtime
+- `/` serves the same UI shell used by the plugin
+- the preview is for interface inspection only
+- static analysis and Figma node creation still run only inside the plugin runtime
 
 ## Notes
 
-- `manifest.json` is configured for local backend access at `http://localhost:8787`.
-- The backend route is `POST /v1/convert`.
-- The Figma renderer is only a starter implementation. Unsupported CSS should be added in the design-plan and renderer layers, not bypassed in the UI.
+- `manifest.json` no longer requires network access for conversion
+- the preview server does not expose a conversion API anymore
+- unsupported CSS should be added in the shared static-analysis layer and renderer, not bypassed in the UI

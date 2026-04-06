@@ -55,8 +55,9 @@ describe("plugin UI", () => {
     );
 
     expect(uiHtml).toContain("const isBrowserPreviewMode = window.parent === window;");
-    expect(uiHtml).toContain("Browser preview mode");
-    expect(uiHtml).toContain("previewConversion(payload);");
+    expect(uiHtml).toContain("Browser preview only");
+    expect(uiHtml).not.toContain("backend-url");
+    expect(uiHtml).not.toContain("/v1/convert");
     expect(uiHtml).toContain("Mode 1 requires an HTML file.");
     expect(uiHtml).toContain("Mode 1 requires a CSS file.");
   });

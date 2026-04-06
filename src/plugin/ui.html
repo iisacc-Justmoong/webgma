@@ -21,7 +21,7 @@
 
       main {
         display: grid;
-        grid-template-rows: auto 1fr auto auto;
+        grid-template-rows: auto auto 1fr auto auto;
         gap: 16px;
         min-height: 100vh;
         padding: 20px;
@@ -43,18 +43,18 @@
         line-height: 1.5;
       }
 
-      .backend {
-        display: grid;
-        gap: 8px;
+      .mode-switcher,
+      .status,
+      .output {
+        padding: 16px;
+        border: 1px solid rgba(148, 163, 184, 0.22);
+        border-radius: 16px;
+        background: rgba(15, 23, 42, 0.7);
       }
 
       .mode-switcher {
         display: grid;
         gap: 12px;
-        padding: 16px;
-        border: 1px solid rgba(148, 163, 184, 0.22);
-        border-radius: 16px;
-        background: rgba(15, 23, 42, 0.7);
       }
 
       .mode-options {
@@ -90,6 +90,11 @@
         line-height: 1.5;
       }
 
+      #mode-description {
+        color: #cbd5e1;
+        font-size: 13px;
+      }
+
       .panes {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -119,17 +124,6 @@
         font-size: 16px;
       }
 
-      .controls {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-      }
-
-      .file-input {
-        display: grid;
-        gap: 10px;
-      }
-
       .pane-copy {
         display: grid;
         gap: 6px;
@@ -142,7 +136,10 @@
         line-height: 1.5;
       }
 
-      .code-input {
+      .controls,
+      .code-input,
+      .file-input,
+      .status {
         display: grid;
         gap: 8px;
       }
@@ -158,24 +155,15 @@
         color: #cbd5e1;
       }
 
-      input[type="text"],
       textarea {
         width: 100%;
-        border: 1px solid rgba(148, 163, 184, 0.28);
-        border-radius: 12px;
-        background: rgba(15, 23, 42, 0.8);
-        color: inherit;
-      }
-
-      input[type="text"] {
-        height: 40px;
-        padding: 0 12px;
-      }
-
-      textarea {
         min-height: 300px;
         padding: 14px;
+        border: 1px solid rgba(148, 163, 184, 0.28);
+        border-radius: 12px;
         resize: vertical;
+        background: rgba(15, 23, 42, 0.8);
+        color: inherit;
         font: 13px/1.5 "SFMono-Regular", Consolas, monospace;
       }
 
@@ -209,23 +197,6 @@
         color: #e2e8f0;
       }
 
-      .status,
-      .output {
-        padding: 16px;
-        border: 1px solid rgba(148, 163, 184, 0.22);
-        border-radius: 16px;
-        background: rgba(15, 23, 42, 0.7);
-      }
-
-      .status {
-        display: grid;
-        gap: 8px;
-      }
-
-      .status strong {
-        font-size: 14px;
-      }
-
       .output pre {
         overflow: auto;
         white-space: pre-wrap;
@@ -235,10 +206,7 @@
       }
 
       @media (max-width: 900px) {
-        .mode-options {
-          grid-template-columns: 1fr;
-        }
-
+        .mode-options,
         .panes {
           grid-template-columns: 1fr;
         }
@@ -250,20 +218,10 @@
       <section class="header">
         <h1>Webgma</h1>
         <p>
-          Choose one input mode for both sources. Mode 1 accepts HTML and CSS
-          files. Mode 2 keeps the current code-editor workflow with two text
-          inputs.
+          HTML과 CSS를 정적으로 분석해 피그마 디자인을 생성합니다.
+          변환은 플러그인 내부에서 직접 수행되며 브라우저 백엔드에
+          의존하지 않습니다.
         </p>
-      </section>
-
-      <section class="backend">
-        <label for="backend-url">Backend URL</label>
-        <input
-          id="backend-url"
-          type="text"
-          value="http://localhost:8787"
-          spellcheck="false"
-        />
       </section>
 
       <section class="mode-switcher">
@@ -279,8 +237,8 @@
             <div>
               <strong>Mode 1 · File Input</strong>
               <span>
-                Use HTML and CSS files as arguments. Each pane shows a file
-                picker and selected-file state.
+                HTML 파일과 CSS 파일을 인자로 받습니다. 선택된 파일의
+                내용이 플러그인에서 직접 정적 분석됩니다.
               </span>
             </div>
           </label>
@@ -295,8 +253,7 @@
             <div>
               <strong>Mode 2 · Code Input</strong>
               <span>
-                Use the existing workflow with two text editors for HTML and
-                CSS code.
+                HTML 코드와 CSS 코드를 각각 텍스트 입력으로 받습니다.
               </span>
             </div>
           </label>
@@ -313,8 +270,8 @@
           </div>
           <div class="pane-copy">
             <p>
-              HTML source panel. The visible input control depends on the
-              current mode.
+              HTML 소스 패널입니다. 현재 모드에 따라 파일 입력 또는 코드
+              입력이 노출됩니다.
             </p>
           </div>
           <div class="mode-panel file-input" id="html-file-panel" hidden>
@@ -348,8 +305,8 @@
           </div>
           <div class="pane-copy">
             <p>
-              CSS source panel. The visible input control depends on the
-              current mode.
+              CSS 소스 패널입니다. 현재 모드에 따라 파일 입력 또는 코드
+              입력이 노출됩니다.
             </p>
           </div>
           <div class="mode-panel file-input" id="css-file-panel" hidden>
@@ -383,7 +340,9 @@
         <div id="status-description">
           Waiting for HTML code and CSS code input.
         </div>
-        <button id="convert-button" type="button">Merge and create Figma layout</button>
+        <button id="convert-button" type="button">
+          Analyze and create Figma layout
+        </button>
         <button class="secondary" id="close-button" type="button">
           Close
         </button>
@@ -406,7 +365,6 @@
       const cssCodePanel = document.getElementById("css-code-panel");
       const htmlFileMeta = document.getElementById("html-file-meta");
       const cssFileMeta = document.getElementById("css-file-meta");
-      const backendUrlInput = document.getElementById("backend-url");
       const convertButton = document.getElementById("convert-button");
       const closeButton = document.getElementById("close-button");
       const statusTitle = document.getElementById("status-title");
@@ -424,7 +382,7 @@
   <div class="card">
     <span class="eyebrow">Webgma</span>
     <h1>HTML to Figma</h1>
-    <p>Inline CSS becomes the source of truth for the generated design plan.</p>
+    <p>Static analysis turns HTML and CSS into a Figma starter layout.</p>
   </div>
 </section>`;
 
@@ -470,14 +428,17 @@ p {
       });
 
       convertButton.addEventListener("click", async () => {
-        try {
-          setStatus("Converting", "Sending HTML and CSS to the backend.");
-          const payload = await buildPayload();
+        if (isBrowserPreviewMode) {
+          setStatus(
+            "Browser preview only",
+            "Static analysis and Figma node creation run inside the Figma plugin runtime."
+          );
+          return;
+        }
 
-          if (isBrowserPreviewMode) {
-            previewConversion(payload);
-            return;
-          }
+        try {
+          setStatus("Analyzing", "Running static analysis for HTML and CSS.");
+          const payload = await buildPayload();
 
           parent.postMessage(
             {
@@ -499,7 +460,7 @@ p {
       closeButton.addEventListener("click", () => {
         if (isBrowserPreviewMode) {
           setStatus(
-            "Browser preview mode",
+            "Browser preview only",
             "Close is only available inside the Figma plugin."
           );
           return;
@@ -543,7 +504,7 @@ p {
 
           setStatus(
             "Completed",
-            `Merged HTML received and Figma layout generated.${warnings}`
+            `Static analysis finished and a Figma layout was generated.${warnings}`
           );
           mergedOutput.textContent = pluginMessage.payload.mergedHtml;
         }
@@ -552,11 +513,6 @@ p {
           setStatus("Failed", pluginMessage.payload.message);
         }
       };
-
-      function setStatus(title, description) {
-        statusTitle.textContent = title;
-        statusDescription.textContent = description;
-      }
 
       async function buildPayload() {
         const inputMode = getSelectedInputMode();
@@ -574,7 +530,6 @@ p {
           }
 
           return {
-            backendUrl: backendUrlInput.value,
             html: {
               content: await htmlFile.text(),
               mode: "file",
@@ -589,7 +544,6 @@ p {
         }
 
         return {
-          backendUrl: backendUrlInput.value,
           html: {
             content: htmlInput.value,
             mode: "code",
@@ -601,41 +555,6 @@ p {
             name: undefined
           }
         };
-      }
-
-      async function previewConversion(payload) {
-        try {
-          const response = await fetch(`${normalizeBackendUrl(payload.backendUrl)}/v1/convert`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-              html: payload.html,
-              css: payload.css
-            })
-          });
-          const body = await response.json();
-
-          if (!response.ok) {
-            throw new Error(body.error || "Conversion request failed.");
-          }
-
-          mergedOutput.textContent = body.mergedHtml;
-          setStatus(
-            "Browser preview completed",
-            "Merged HTML was generated. Figma node creation is only available inside the plugin runtime."
-          );
-        } catch (error) {
-          setStatus(
-            "Browser preview failed",
-            error instanceof Error ? error.message : "Unexpected preview error."
-          );
-        }
-      }
-
-      function normalizeBackendUrl(value) {
-        return (value || "http://localhost:8787").replace(/\/$/, "");
       }
 
       function getSelectedInputMode() {
@@ -664,8 +583,8 @@ p {
 
         if (isBrowserPreviewMode) {
           setStatus(
-            "Browser preview mode",
-            `UI preview is active. ${waitingMessage} Figma node creation still requires the plugin runtime.`
+            "Browser preview only",
+            `UI preview is active. ${waitingMessage} Static analysis runs only inside the Figma plugin runtime.`
           );
           return;
         }
@@ -681,6 +600,11 @@ p {
         metaNode.textContent = selectedFile
           ? `${selectedFile.name} selected (${selectedFile.type || "text/plain"}, ${selectedFile.size} bytes).`
           : `No ${sourceType.toUpperCase()} file selected.`;
+      }
+
+      function setStatus(title, description) {
+        statusTitle.textContent = title;
+        statusDescription.textContent = description;
       }
 
       htmlInput.value = htmlSample;

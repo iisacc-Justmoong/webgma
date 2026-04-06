@@ -3,8 +3,5 @@
   "api": "1.0.0",
   "main": "build/plugin/code.js",
   "ui": "build/plugin/ui.html",
-  "editorType": ["figma"],
-  "networkAccess": {
-    "allowedDomains": ["http://localhost:8787"]
-  }
+  "editorType": ["figma"]
 }

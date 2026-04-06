@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createDesignPlan } from "../src/backend/services/design-plan-service.js";
+import { createDesignPlan } from "../src/shared/services/design-plan-service.js";
 
 describe("createDesignPlan", () => {
   it("derives starter auto-layout hints from merged inline HTML", () => {

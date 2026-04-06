@@ -11,45 +11,22 @@ describe("createApp", () => {
     expect(response.headers["content-type"]).toMatch(/text\/html/);
     expect(response.text).toContain("Mode 1 · File Input");
     expect(response.text).toContain("Mode 2 · Code Input");
-    expect(response.text).toContain("HTML File");
-    expect(response.text).toContain("CSS Code");
-    expect(response.text).toContain("Browser preview mode");
+    expect(response.text).toContain("Analyze and create Figma layout");
+    expect(response.text).toContain("Browser preview only");
   });
 
-  it("returns merged HTML and a design plan", async () => {
+  it("exposes a lightweight health endpoint", async () => {
     const app = createApp();
-    const response = await request(app).post("/v1/convert").send({
-      html: {
-        content: '<section class="hero"><h1>Hello</h1></section>',
-        mode: "code"
-      },
-      css: {
-        content:
-          ".hero { display: flex; padding: 32px; background: #0f172a; } h1 { font-size: 28px; color: #ffffff; }",
-        mode: "code"
-      }
-    });
+    const response = await request(app).get("/health");
 
     expect(response.status).toBe(200);
-    expect(response.body.mergedHtml).toMatch(/padding:\s*32px/i);
-    expect(response.body.designPlan.root.children).toHaveLength(1);
-    expect(response.body.warnings[0]).toMatch(/Current scaffold maps inline styles/i);
+    expect(response.body).toEqual({ status: "ok" });
   });
 
-  it("rejects invalid requests", async () => {
+  it("does not expose the old backend conversion route", async () => {
     const app = createApp();
-    const response = await request(app).post("/v1/convert").send({
-      html: {
-        content: "",
-        mode: "code"
-      },
-      css: {
-        content: "body { color: red; }",
-        mode: "code"
-      }
-    });
+    const response = await request(app).post("/v1/convert").send({});
 
-    expect(response.status).toBe(400);
-    expect(response.body.error).toMatch(/HTML content is required/i);
+    expect(response.status).toBe(404);
   });
 });

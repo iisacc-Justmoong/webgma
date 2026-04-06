@@ -1,7 +1,7 @@
 {
   "name": "Webgma",
   "version": "1.0.0",
-  "description": "Figma plugin scaffold for HTML/CSS to inline HTML and design-plan conversion.",
+  "description": "Figma plugin scaffold for static HTML/CSS analysis and Figma design generation.",
   "type": "module",
   "scripts": {
     "clean": "rm -rf build",
@@ -13,7 +13,6 @@
   },
   "dependencies": {
     "express": "^5.1.0",
-    "juice": "^11.0.3",
     "node-html-parser": "^7.0.1"
   },
   "devDependencies": {
