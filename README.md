@@ -68,6 +68,7 @@ The next implementation phase should expand selector coverage, improve cascade f
 ## Scripts
 
 - `npm run build`: bundle the plugin into `build/`
+- `npm run clean`: remove only this project's generated `build/` with Node.js; no Unix shell is required on Windows.
 - `npm run prepare:release`: generate `build/release/` with a release manifest and packaged plugin files
 - `npm test`: run the unit and interface tests
 

@@ -4,7 +4,7 @@
   "description": "Figma plugin scaffold for static HTML/CSS analysis and Figma design generation.",
   "type": "module",
   "scripts": {
-    "clean": "rm -rf build",
+    "clean": "node scripts/clean-build.mjs",
     "build": "npm run clean && npm run build:plugin",
     "build:plugin": "node scripts/build-plugin.mjs",
     "prepare:release": "npm run build && node scripts/prepare-release.mjs",
