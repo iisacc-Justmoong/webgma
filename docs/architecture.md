@@ -1,106 +1,119 @@
-# Architecture
+<a id="architecture"></a>
 
-## Goal
+# 건축
 
-The product goal is:
+<a id="goal"></a>
 
-1. receive HTML and CSS from files or code inputs
-1.1. allow HTML-only imports when CSS is missing
-1.2. keep the convert action permissive in both file mode and code mode, so CSS omission does not block auto-layout generation
-2. statically analyze both sources inside the plugin
-3. merge CSS into a single inline HTML source
-4. treat that merged HTML as the source of truth
-5. reinterpret that source into a normalized design plan
-6. sanitize the interpreted result into a Figma-safe transfer object
-7. convert that transfer object into a Figma design with CSS-aware auto layout
+## 목표
 
-## Current scaffold boundaries
+제품 목표는 다음과 같습니다.
 
-### Plugin side
+1. 파일 또는 코드 입력에서 HTML 및 CSS 수신
+1.1. CSS에 1.2가 누락된 경우 HTML 전용 가져오기를 허용합니다. 파일 모드와 코드 모드 모두에서 변환 작업을 허용하도록 유지하므로 CSS 생략으로 인해 자동 레이아웃 생성이 차단되지 않습니다.
+2. 플러그인 내부의 두 소스를 모두 정적으로 분석합니다.
+3. CSS를 단일 인라인 HTML 소스로 병합
+4. 병합된 HTML를 기준 원본로 처리합니다.
+5. 해당 소스를 정규화된 설계 계획으로 재해석
+6. 해석된 결과를 Figma 안전 전송 개체로 삭제합니다.
+7. 해당 전송 객체를 CSS 인식 자동 레이아웃을 사용하여 Figma 설계로 변환합니다.
+
+<a id="current-scaffold-boundaries"></a>
+
+## 현재 비계 경계
+
+<a id="plugin-side"></a>
+
+### 플러그인 측
 
 - `src/plugin/ui.html`
-  - provides one global input mode switch
-  - `Mode 1` accepts an HTML file and an optional CSS file
-  - `Mode 2` accepts HTML code and optional CSS code
-  - keeps all visible UI copy in English
-  - measures the rendered content and requests a fit-to-content resize after load
-  - intentionally excludes sample loaders and preview UI
+  - 하나의 전역 입력 모드 스위치 제공
+  - `Mode 1`는 HTML 파일과 선택적 CSS 파일을 허용합니다.
+  - `Mode 2`는 HTML 코드 및 선택적 CSS 코드를 허용합니다.
+  - 보이는 모든 UI 사본을 영어로 유지합니다.
+  - 렌더링된 콘텐츠를 측정하고 로드 후 콘텐츠에 맞는 크기 조정을 요청합니다.
+  - 의도적으로 샘플 로더를 제외하고 UI를 미리 봅니다.
 - `src/plugin/code.ts`
-  - owns the Figma plugin lifecycle
-  - runs static HTML/CSS analysis directly in the plugin runtime
-  - opens the UI with a safe default size so controls are visible even before the first resize message arrives
-  - renders the resulting Figma transfer document on the current page
+  - Figma 플러그인 라이프사이클을 소유하고 있습니다.
+  - 플러그인 런타임에서 직접 정적 HTML/CSS 분석을 실행합니다.
+  - 첫 번째 크기 조정 메시지가 도착하기 전에도 컨트롤이 표시되도록 안전한 기본 크기로 UI를 엽니다.
+  - 현재 페이지에 결과 Figma 전송 문서를 렌더링합니다.
 - `src/plugin/render-design-plan.ts`
-  - consumes the Figma-safe transfer payload instead of the raw design plan
-  - maps layout hints to Figma frames and text layers
-  - applies the current auto-layout-related CSS subset
-  - maps appearance hints such as fills, strokes, image fills, and shadows onto Figma nodes
-  - applies child placement hints such as margin wrappers, flex growth, stretch alignment, and absolute positioning
-  - respects text max-width constraints so long paragraphs wrap instead of stretching the imported page into one line
-  - guards `min/max` sizing setters so they only run in Figma contexts that actually support those constraints
-  - enforces Figma-oriented auto-layout policy so `NONE` frames avoid auto-layout-only setters and fill/stretch child frames are moved onto legal fixed axes
+  - 원시 설계 계획 대신 Figma 안전 전송 페이로드를 사용합니다.
+  - 레이아웃 힌트를 Figma 프레임 및 텍스트 레이어에 매핑합니다.
+  - 현재 자동 레이아웃 관련 CSS 하위 집합을 적용합니다.
+  - 채우기, 획, 이미지 채우기 및 그림자와 같은 모양 힌트를 Figma 노드에 매핑합니다.
+  - 여백 래퍼, 굴곡 증가, 늘이기 정렬, 절대 위치 지정과 같은 하위 배치 힌트를 적용합니다.
+  - 가져온 페이지를 한 줄로 늘리는 대신 긴 단락이 줄바꿈되도록 텍스트 최대 너비 제약 조건을 준수합니다.
+  - `min/max` 크기 조정 설정자를 보호하여 실제로 이러한 제약 조건을 지원하는 Figma 컨텍스트에서만 실행됩니다.
+  - Figma 지향 자동 레이아웃 정책을 시행하여 `NONE` 프레임이 자동 레이아웃 전용 설정자를 피하고 채우기/늘이기 하위 프레임이 합법적인 고정 축으로 이동되도록 합니다.
 - `scripts/build-plugin.mjs`
-  - bundles the plugin into `build/`
-  - targets `es2017` so the generated code stays compatible with Figma's plugin code evaluator
+  - 플러그인을 `build/`에 번들로 묶습니다.
+  - 생성된 코드가 Figma의 플러그인 코드 평가기와 호환되도록 `es2017`를 대상으로 합니다.
 - `scripts/plugin-build-config.mjs`
-  - centralizes plugin bundling options shared by the build script and regression tests
-  - prevents config drift between local packaging and compatibility checks
+  - 빌드 스크립트 및 회귀 테스트에서 공유하는 플러그인 번들링 옵션을 중앙 집중화합니다.
+  - 로컬 패키징과 호환성 검사 간의 구성 드리프트를 방지합니다.
 
-### Shared analysis side
+<a id="shared-analysis-side"></a>
+
+### 공유분석측
 
 - `src/shared/services/conversion-service.ts`
-  - validates the HTML/CSS payload
-  - treats CSS input as optional so HTML-only conversion can still produce auto-layout frames
-  - runs the end-to-end static conversion flow
+  - HTML/CSS 페이로드를 검증합니다.
+  - CSS 입력을 선택 사항으로 처리하므로 HTML 전용 변환은 여전히 자동 레이아웃 프레임을 생성할 수 있습니다.
+  - 엔드투엔드 정적 변환 흐름을 실행합니다.
 - `src/shared/services/css-content-loader.ts`
-  - normalizes escaped HTML input before any CSS processing starts
-  - extracts embedded `<style>` blocks into explicit CSS sources
-  - removes stylesheet dependencies from the HTML so the merged output can become a single self-contained document
-  - centralizes CSS source loading so selector parsing and design-plan generation can share one normalized HTML/CSS entry point
+  - CSS 처리가 시작되기 전에 이스케이프된 HTML 입력을 정규화합니다.
+  - 내장된 `<style>` 블록을 명시적 CSS 소스로 추출합니다.
+  - 병합된 출력이 하나의 독립된 문서가 될 수 있도록 HTML에서 스타일시트 종속성을 제거합니다.
+  - CSS 소스 로딩을 중앙 집중화하므로 선택기 구문 분석 및 설계 계획 생성이 하나의 정규화된 HTML/CSS 진입점을 공유할 수 있습니다.
 - `src/shared/services/style-implementation-service.ts`
-  - generates default fallback values for missing CSS custom properties based on style-token names and declaration context
-  - resolves custom properties and explicit `var(...)` usage into concrete declarations before inline HTML serialization
-  - centralizes style-token policy so CSS implementation quality can improve without rewriting selector matching
+  - 스타일 토큰 이름 및 선언 컨텍스트를 기반으로 누락된 CSS 사용자 정의 속성에 대한 기본 대체 경로 값을 생성합니다.
+  - 인라인 HTML 직렬화 전에 사용자 지정 속성과 명시적 `var(...)` 사용을 구체적인 선언으로 해결합니다.
+  - CSS 구현 품질이 선택기 일치를 다시 작성하지 않고도 향상될 수 있도록 스타일 토큰 정책을 중앙 집중화합니다.
 - `src/shared/services/figma-style-interpreter.ts`
-  - reinterprets merged inline CSS into Figma-oriented layout, item-placement, appearance, and text hints
-  - centralizes the policy for translating CSS values into the subset that the renderer can legally apply inside Figma
-  - lets `design-plan-service.ts` focus on DOM tree mapping instead of embedding all style translation rules inline
+  - 병합된 인라인 CSS를 Figma 중심 레이아웃, 항목 배치, 모양 및 텍스트 힌트로 재해석합니다.
+  - CSS 값을 렌더러가 Figma 내부에 합법적으로 적용할 수 있는 하위 집합으로 변환하기 위한 정책을 중앙 집중화합니다.
+  - 모든 스타일 변환 규칙을 인라인에 포함하는 대신 `design-plan-service.ts`가 DOM 트리 매핑에 집중할 수 있습니다.
 - `src/shared/services/figma-transfer-service.ts`
-  - prepares a renderer-safe handoff document from the raw design plan
-  - removes fields the renderer does not need, such as raw style maps
-  - normalizes illegal or risky values before the Figma runtime sees them, including invalid min/max ranges, out-of-bounds colors and opacity values, broken text ranges, and unsupported image URLs
+  - 원시 디자인 계획에서 렌더러 안전 핸드오프 문서를 준비합니다.
+  - 원시 스타일 맵과 같이 렌더러에 필요하지 않은 필드를 제거합니다.
+  - 잘못된 최소/최대 범위, 범위를 벗어난 색상 및 불투명도 값, 깨진 텍스트 범위 및 지원되지 않는 이미지 URL을 포함하여 Figma 런타임가 이를 보기 전에 불법적이거나 위험한 값을 정규화합니다.
 - `src/shared/services/inline-html-service.ts`
-  - consumes the shared CSS content loader instead of loading HTML/CSS sources itself
-  - consumes the shared style implementation service instead of resolving custom properties inline by itself
-  - applies CSS declarations to HTML through static selector matching
-  - resolves CSS custom properties and normalizes inlineable functional selectors such as `:root` and `:where(...)`
-  - preserves structural pseudo selectors when the underlying selector engine can resolve them
-  - flattens conditional rules and state selectors onto base elements when forcing a single inline HTML output
-  - reports merge warnings when selector or rule fidelity is reduced
+  - HTML/CSS 소스 자체를 로드하는 대신 공유 CSS 콘텐츠 로더를 사용합니다.
+  - 자체적으로 사용자 정의 속성을 인라인으로 해결하는 대신 공유 스타일 구현 서비스를 사용합니다.
+  - 정적 선택기 일치를 통해 CSS 선언을 HTML에 적용합니다.
+  - CSS 사용자 정의 속성을 확인하고 `:root` 및 `:where(...)`와 같은 인라인 가능 기능 선택기를 정규화합니다.
+  - 기본 선택기 엔진이 구조적 의사 선택기를 해결할 수 있는 경우 구조적 의사 선택기를 보존합니다.
+  - 단일 인라인 HTML 출력을 강제할 때 조건부 규칙 및 상태 선택기를 기본 요소로 평면화합니다.
+  - 선택기 또는 규칙 충실도가 감소하면 병합 경고를 보고합니다.
 - `src/shared/services/design-plan-service.ts`
-  - parses merged inline HTML
-  - produces a normalized tree of frames and text nodes
-  - preserves inline text fragments as styled text ranges
-  - preserves `<img>` and `background-image` assets in the plan
-  - delegates CSS-to-Figma reinterpretation to `figma-style-interpreter.ts`
-  - carries border strokes, box shadows, and broader inline color formats into appearance hints
-  - separates container layout hints from child item-placement hints so CSS survives the trip into Figma more faithfully
+  - 병합된 인라인 HTML를 구문 분석합니다.
+  - 정규화된 프레임 및 텍스트 노드 트리를 생성합니다.
+  - 인라인 텍스트 조각을 스타일이 지정된 텍스트 범위로 유지합니다.
+  - 계획에서 `<img>` 및 `background-image` 자산을 보존합니다.
+  - CSS-to-Figma 재해석을 `figma-style-interpreter.ts`에 위임
+  - 테두리 선, 상자 그림자 및 더 넓은 인라인 색상 형식을 모양 힌트로 전달합니다.
+  - 컨테이너 레이아웃 힌트를 하위 항목 배치 힌트와 분리하므로 CSS는 Figma로의 이동에서 더욱 충실하게 살아남습니다.
 - `src/shared/contracts.ts`
-  - keeps the plugin data contracts explicit
-  - exposes the raw design-plan model and the sanitized Figma transfer model separately
+  - 플러그인 데이터 계약을 명시적으로 유지합니다.
+  - 원시 설계 계획 모델과 삭제된 Figma 전송 모델을 별도로 노출합니다.
 
-## Why this split
+<a id="why-this-split"></a>
 
-- static analysis belongs in a shared layer so the plugin owns conversion directly
-- the plugin stays focused on Figma-specific node creation after analysis and handoff sanitization
-- the UI stays minimal and only collects real user input
-- deployment packaging is isolated in `scripts/prepare-release.mjs` so release manifests can differ from local development manifests only by asset paths
-- build compatibility checks compile the plugin into a temporary bundle during tests so unsupported syntax regressions such as nullish coalescing, optional chaining, and object spread are caught before release
+## 분할 이유
 
-## Immediate next steps
+- 정적 분석은 공유 레이어에 속하므로 플러그인이 변환을 직접 소유합니다.
+- 플러그인은 분석 및 핸드오프 삭제 후 Figma 관련 노드 생성에 계속 집중합니다.
+- UI는 최소한으로 유지되며 실제 사용자 입력만 수집합니다.
+- 배포 패키징은 `scripts/prepare-release.mjs`에 격리되어 있으므로 릴리스 매니페스트는 자산 경로에 의해서만 로컬 개발 매니페스트와 다를 수 있습니다.
+- 빌드 호환성 검사는 테스트 중에 플러그인을 임시 번들로 컴파일하므로 널 병합, 선택적 체인 및 객체 확산과 같은 지원되지 않는 구문 회귀가 릴리스 전에 포착됩니다.
 
-1. Add support for CSS grid, gradients, richer typography, and more complete background semantics.
-2. Improve CSS cascade fidelity for conflicting selectors and inheritance.
-3. Introduce a stable node identity strategy so repeated imports can update existing nodes.
-4. Add fixture-based regression tests for larger HTML/CSS cases.
-5. Expand warning coverage and fallback handling for more unsupported CSS patterns.
+<a id="immediate-next-steps"></a>
+
+## 즉각적인 다음 단계
+
+1. CSS 그리드, 그라데이션, 더욱 풍부한 타이포그래피 및 보다 완전한 배경 의미에 대한 지원을 추가합니다.
+2. 충돌하는 선택기 및 상속에 대한 CSS 캐스케이드 충실도를 개선합니다.
+3. 반복적인 가져오기로 기존 노드를 업데이트할 수 있도록 안정적인 노드 ID 전략을 도입합니다.
+4. 더 큰 HTML/CSS 사례에 대해 픽스처 기반 회귀 테스트를 추가합니다.
+5. 더 많은 지원되지 않는 CSS 패턴에 대해 경고 적용 범위와 대체 경로 처리를 확장합니다.
