@@ -97,3 +97,12 @@ The next implementation phase should expand selector coverage, improve cascade f
 ## Deployment
 
 Figma publish preparation is documented in [publishing.md](/Volumes/Storage/Workspace/Product/Webgma/docs/publishing.md). The current setup aligns the manifest with Figma deployment requirements and prepares a packaged release folder without requiring manual path rewrites.
+
+<!-- workspace-docs:readme:start -->
+## Documentation entry points
+
+- Human overview: this English `README.md`.
+- Agent instructions: [AGENT.md](AGENT.md).
+- Human documentation: [documentation index](docs/README.md).
+- Structured agent documentation: [agent index](docs/agent-index.json).
+<!-- workspace-docs:readme:end -->

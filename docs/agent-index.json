@@ -1,0 +1,69 @@
+{
+  "format": "iisacc.agent-document-index",
+  "schema_version": 1,
+  "project": {
+    "id": "urn:iisacc:project:Product%2F.Deprecated%2FWebgma",
+    "name": "Webgma",
+    "root": "Product/.Deprecated/Webgma",
+    "kind": "application"
+  },
+  "documentation_root": "docs",
+  "agent_schema": "docs/agent-document.schema.json",
+  "documents": [
+    {
+      "document_id": "urn:iisacc:document:f071abebcd1d38b6ce7bb5f2f5ce25f62ce66773dd6b3d59157fa4f3b9c24ada",
+      "source": "AGENT.md",
+      "agent_json": "docs/entrypoints/AGENT.agent.json",
+      "source_sha256": "40bf9ab26e93bd4f9739213cf9f38ce865968000ae62ee2ec9224ce0865efe13",
+      "role": "instructions"
+    },
+    {
+      "document_id": "urn:iisacc:document:8fd7832f7becca012212716c2a1dac07ceaa8332014280e7a816d00d079a2ef1",
+      "source": "README.md",
+      "agent_json": "docs/entrypoints/README.agent.json",
+      "source_sha256": "334273cbf9f2954c479880b065a32967f478f83dae021bc03845d6777d8eb630",
+      "role": "overview"
+    },
+    {
+      "document_id": "urn:iisacc:document:c19a7223c30fde67fd422dd7039dbfbdf0ca47adb3b71711b9d335a6906de974",
+      "source": "docs/README.md",
+      "agent_json": "docs/README.agent.json",
+      "source_sha256": "f1318de5b3aaa5413eca8f0d5c45527ec64923f17319e7f8069d7cd1c7f81786",
+      "role": "overview"
+    },
+    {
+      "document_id": "urn:iisacc:document:51786b09101c3df829fbf909914d5a8e5d373c7f71f9d9f93599efad0e1f6ce6",
+      "source": "docs/architecture.md",
+      "agent_json": "docs/architecture.agent.json",
+      "source_sha256": "1784d7cb803ebf2c2702d46d4ffd7fedc193bdb855fdfa576501ee09df00ec48",
+      "role": "reference"
+    },
+    {
+      "document_id": "urn:iisacc:document:1adcea338b20f31e7a936f3bbd5d7b06496b6ad6928eebaef3acf624244eb7f0",
+      "source": "docs/documentation-structure.md",
+      "agent_json": "docs/documentation-structure.agent.json",
+      "source_sha256": "e072da07fd9d2399fed1a7dfa6c021136d391cf1b3eab497a413bfd4eaa98a57",
+      "role": "guide"
+    },
+    {
+      "document_id": "urn:iisacc:document:dd520fa494e2c6de9f253ef3c8f83d6b5883c80632dbe3c46ad14a7906c874dc",
+      "source": "docs/publishing.md",
+      "agent_json": "docs/publishing.agent.json",
+      "source_sha256": "d8f57fcd36648ebce7e656011edc548d5da9406c16700a61a32f7c1ab9febc6c",
+      "role": "guide"
+    }
+  ],
+  "layout": {
+    "human_entry": "README.md",
+    "agent_entry": "AGENT.md",
+    "human_format": "markdown",
+    "agent_format": "structured_json",
+    "source_authority": "markdown"
+  },
+  "provenance": {
+    "generator": "workspace-docs",
+    "version": "1.0.0",
+    "profile": "lossless-blocks-v1",
+    "derived": true
+  }
+}

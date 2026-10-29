@@ -1,0 +1,728 @@
+{
+  "format": "iisacc.agent-document",
+  "schema_version": 1,
+  "document_id": "urn:iisacc:document:8fd7832f7becca012212716c2a1dac07ceaa8332014280e7a816d00d079a2ef1",
+  "project": {
+    "id": "urn:iisacc:project:Product%2F.Deprecated%2FWebgma",
+    "name": "Webgma",
+    "root": "Product/.Deprecated/Webgma",
+    "kind": "application"
+  },
+  "source": {
+    "path": "README.md",
+    "sha256": "334273cbf9f2954c479880b065a32967f478f83dae021bc03845d6777d8eb630",
+    "bytes": 6782,
+    "line_count": 108,
+    "encoding": "utf-8",
+    "language": "en"
+  },
+  "document": {
+    "title": "Webgma",
+    "role": "overview",
+    "authority": "markdown_source"
+  },
+  "blocks": [
+    {
+      "id": "b000001",
+      "kind": "heading",
+      "start_line": 1,
+      "end_line": 1,
+      "raw": "# Webgma\n",
+      "level": 1,
+      "title": "Webgma"
+    },
+    {
+      "id": "b000002",
+      "kind": "blank",
+      "start_line": 2,
+      "end_line": 2,
+      "raw": "\n"
+    },
+    {
+      "id": "b000003",
+      "kind": "paragraph",
+      "start_line": 3,
+      "end_line": 3,
+      "raw": "Webgma is a Figma plugin scaffold that turns HTML and CSS into a starter Figma layout through static analysis.\n"
+    },
+    {
+      "id": "b000004",
+      "kind": "blank",
+      "start_line": 4,
+      "end_line": 4,
+      "raw": "\n"
+    },
+    {
+      "id": "b000005",
+      "kind": "heading",
+      "start_line": 5,
+      "end_line": 5,
+      "raw": "## Current flow\n",
+      "level": 2,
+      "title": "Current flow"
+    },
+    {
+      "id": "b000006",
+      "kind": "blank",
+      "start_line": 6,
+      "end_line": 6,
+      "raw": "\n"
+    },
+    {
+      "id": "b000007",
+      "kind": "list",
+      "start_line": 7,
+      "end_line": 14,
+      "raw": "1. Choose one global input mode in the plugin UI.\n2. `Mode 1` accepts one HTML file and an optional CSS file.\n3. `Mode 2` accepts HTML code and optional CSS code through two text editors.\n4. The convert action stays permissive in both modes: HTML is required, CSS is optional.\n5. The plugin merges CSS into HTML with static selector analysis.\n6. The merged inline HTML becomes the source of truth for the design plan.\n7. The plugin converts that design plan into a Figma-safe transfer document.\n8. The plugin renders that transfer document into Figma frames and text nodes.\n",
+      "items": [
+        {
+          "marker": "1.",
+          "text": "Choose one global input mode in the plugin UI.",
+          "checked": null
+        },
+        {
+          "marker": "2.",
+          "text": "`Mode 1` accepts one HTML file and an optional CSS file.",
+          "checked": null
+        },
+        {
+          "marker": "3.",
+          "text": "`Mode 2` accepts HTML code and optional CSS code through two text editors.",
+          "checked": null
+        },
+        {
+          "marker": "4.",
+          "text": "The convert action stays permissive in both modes: HTML is required, CSS is optional.",
+          "checked": null
+        },
+        {
+          "marker": "5.",
+          "text": "The plugin merges CSS into HTML with static selector analysis.",
+          "checked": null
+        },
+        {
+          "marker": "6.",
+          "text": "The merged inline HTML becomes the source of truth for the design plan.",
+          "checked": null
+        },
+        {
+          "marker": "7.",
+          "text": "The plugin converts that design plan into a Figma-safe transfer document.",
+          "checked": null
+        },
+        {
+          "marker": "8.",
+          "text": "The plugin renders that transfer document into Figma frames and text nodes.",
+          "checked": null
+        }
+      ]
+    },
+    {
+      "id": "b000008",
+      "kind": "blank",
+      "start_line": 15,
+      "end_line": 15,
+      "raw": "\n"
+    },
+    {
+      "id": "b000009",
+      "kind": "heading",
+      "start_line": 16,
+      "end_line": 16,
+      "raw": "## Repository layout\n",
+      "level": 2,
+      "title": "Repository layout"
+    },
+    {
+      "id": "b000010",
+      "kind": "blank",
+      "start_line": 17,
+      "end_line": 17,
+      "raw": "\n"
+    },
+    {
+      "id": "b000011",
+      "kind": "fenced_code",
+      "start_line": 18,
+      "end_line": 37,
+      "raw": "```text\nsrc/\n  plugin/\n    code.ts\n    render-design-plan.ts\n    ui.html\n  shared/\n    contracts.ts\n    services/\ndocs/\n  architecture.md\n  publishing.md\nscripts/\n  build-plugin.mjs\n  plugin-build-config.mjs\n  prepare-release.mjs\ntest/\n  *.test.ts\nmanifest.json\n```\n",
+      "language": "text",
+      "code": "src/\n  plugin/\n    code.ts\n    render-design-plan.ts\n    ui.html\n  shared/\n    contracts.ts\n    services/\ndocs/\n  architecture.md\n  publishing.md\nscripts/\n  build-plugin.mjs\n  plugin-build-config.mjs\n  prepare-release.mjs\ntest/\n  *.test.ts\nmanifest.json\n",
+      "closed": true
+    },
+    {
+      "id": "b000012",
+      "kind": "blank",
+      "start_line": 38,
+      "end_line": 38,
+      "raw": "\n"
+    },
+    {
+      "id": "b000013",
+      "kind": "heading",
+      "start_line": 39,
+      "end_line": 39,
+      "raw": "## Supported scaffold scope\n",
+      "level": 2,
+      "title": "Supported scaffold scope"
+    },
+    {
+      "id": "b000014",
+      "kind": "blank",
+      "start_line": 40,
+      "end_line": 40,
+      "raw": "\n"
+    },
+    {
+      "id": "b000015",
+      "kind": "paragraph",
+      "start_line": 41,
+      "end_line": 41,
+      "raw": "The current static-analysis scaffold already handles:\n"
+    },
+    {
+      "id": "b000016",
+      "kind": "blank",
+      "start_line": 42,
+      "end_line": 42,
+      "raw": "\n"
+    },
+    {
+      "id": "b000017",
+      "kind": "list",
+      "start_line": 43,
+      "end_line": 64,
+      "raw": "- centralized CSS loading through `src/shared/services/css-content-loader.ts`, including escaped HTML normalization, embedded `<style>` extraction, and stylesheet dependency stripping\n- centralized CSS-to-Figma reinterpretation through `src/shared/services/figma-style-interpreter.ts`, which converts inline CSS into Figma-oriented layout, item-placement, appearance, and text hints\n- centralized style implementation through `src/shared/services/style-implementation-service.ts`, which generates default fallback values for missing CSS tokens and resolves declarations into concrete inline styles\n- centralized Figma handoff preparation through `src/shared/services/figma-transfer-service.ts`, which sanitizes the interpreted node tree into a renderer-safe transfer object\n- tag, class, and id based CSS inlining\n- HTML-only conversion when CSS input is empty or omitted\n- decoding of escaped HTML input before DOM parsing\n- extraction of embedded `<style>` blocks and removal of stylesheet `<link>` dependencies from the merged output\n- normalization of `:root`, `:where()`, and `:is()` selectors into inlineable selectors\n- resolution of CSS custom properties so `var(--token)` values become concrete inline styles\n- generation of default fallback values for missing style tokens such as color, spacing, radius, typography, and shadow tokens\n- preservation of selector-engine-supported structural selectors such as `:not()`, `:first-child`, and `:nth-child()`\n- flex direction, gap, padding, width, height\n- flex wrap, row/column gap, overflow clipping, min/max sizing\n- child margin, `align-self`, `flex-grow`, `flex-shrink`, `flex-basis`, and absolute inset hints\n- background color, opacity, border radius\n- named colors and `hsl()` / `hsla()` inline color parsing\n- border stroke and `box-shadow` appearance transfer into Figma frames\n- mixed inline text fragments such as `Hello <strong>world</strong>`\n- `<img>` and `background-image` based image assets\n- basic text size, weight, line height, alignment, and color\n- forced flattening of conditional rules and state selectors into inline HTML, with explicit warnings when fidelity is reduced\n",
+      "items": [
+        {
+          "marker": "-",
+          "text": "centralized CSS loading through `src/shared/services/css-content-loader.ts`, including escaped HTML normalization, embedded `<style>` extraction, and stylesheet dependency stripping",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "centralized CSS-to-Figma reinterpretation through `src/shared/services/figma-style-interpreter.ts`, which converts inline CSS into Figma-oriented layout, item-placement, appearance, and text hints",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "centralized style implementation through `src/shared/services/style-implementation-service.ts`, which generates default fallback values for missing CSS tokens and resolves declarations into concrete inline styles",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "centralized Figma handoff preparation through `src/shared/services/figma-transfer-service.ts`, which sanitizes the interpreted node tree into a renderer-safe transfer object",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "tag, class, and id based CSS inlining",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "HTML-only conversion when CSS input is empty or omitted",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "decoding of escaped HTML input before DOM parsing",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "extraction of embedded `<style>` blocks and removal of stylesheet `<link>` dependencies from the merged output",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "normalization of `:root`, `:where()`, and `:is()` selectors into inlineable selectors",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "resolution of CSS custom properties so `var(--token)` values become concrete inline styles",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "generation of default fallback values for missing style tokens such as color, spacing, radius, typography, and shadow tokens",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "preservation of selector-engine-supported structural selectors such as `:not()`, `:first-child`, and `:nth-child()`",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "flex direction, gap, padding, width, height",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "flex wrap, row/column gap, overflow clipping, min/max sizing",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "child margin, `align-self`, `flex-grow`, `flex-shrink`, `flex-basis`, and absolute inset hints",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "background color, opacity, border radius",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "named colors and `hsl()` / `hsla()` inline color parsing",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "border stroke and `box-shadow` appearance transfer into Figma frames",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "mixed inline text fragments such as `Hello <strong>world</strong>`",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "`<img>` and `background-image` based image assets",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "basic text size, weight, line height, alignment, and color",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "forced flattening of conditional rules and state selectors into inline HTML, with explicit warnings when fidelity is reduced",
+          "checked": null
+        }
+      ]
+    },
+    {
+      "id": "b000018",
+      "kind": "blank",
+      "start_line": 65,
+      "end_line": 65,
+      "raw": "\n"
+    },
+    {
+      "id": "b000019",
+      "kind": "paragraph",
+      "start_line": 66,
+      "end_line": 66,
+      "raw": "The next implementation phase should expand selector coverage, improve cascade fidelity, and harden layout parity with browser rendering.\n"
+    },
+    {
+      "id": "b000020",
+      "kind": "blank",
+      "start_line": 67,
+      "end_line": 67,
+      "raw": "\n"
+    },
+    {
+      "id": "b000021",
+      "kind": "heading",
+      "start_line": 68,
+      "end_line": 68,
+      "raw": "## Scripts\n",
+      "level": 2,
+      "title": "Scripts"
+    },
+    {
+      "id": "b000022",
+      "kind": "blank",
+      "start_line": 69,
+      "end_line": 69,
+      "raw": "\n"
+    },
+    {
+      "id": "b000023",
+      "kind": "list",
+      "start_line": 70,
+      "end_line": 73,
+      "raw": "- `npm run build`: bundle the plugin into `build/`\n- `npm run clean`: remove only this project's generated `build/` with Node.js; no Unix shell is required on Windows.\n- `npm run prepare:release`: generate `build/release/` with a release manifest and packaged plugin files\n- `npm test`: run the unit and interface tests\n",
+      "items": [
+        {
+          "marker": "-",
+          "text": "`npm run build`: bundle the plugin into `build/`",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "`npm run clean`: remove only this project's generated `build/` with Node.js; no Unix shell is required on Windows.",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "`npm run prepare:release`: generate `build/release/` with a release manifest and packaged plugin files",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "`npm test`: run the unit and interface tests",
+          "checked": null
+        }
+      ]
+    },
+    {
+      "id": "b000024",
+      "kind": "blank",
+      "start_line": 74,
+      "end_line": 74,
+      "raw": "\n"
+    },
+    {
+      "id": "b000025",
+      "kind": "heading",
+      "start_line": 75,
+      "end_line": 75,
+      "raw": "## Notes\n",
+      "level": 2,
+      "title": "Notes"
+    },
+    {
+      "id": "b000026",
+      "kind": "blank",
+      "start_line": 76,
+      "end_line": 76,
+      "raw": "\n"
+    },
+    {
+      "id": "b000027",
+      "kind": "list",
+      "start_line": 77,
+      "end_line": 95,
+      "raw": "- the plugin no longer includes sample input helpers\n- the plugin no longer includes browser or merged-output preview features\n- the plugin UI uses English-only copy\n- the plugin opens with a safe default size and then applies a content-based resize after load\n- the manifest permits remote image fetches so referenced image assets can be rendered\n- the plugin bundle is emitted with an `es2017` target so Figma code evaluation does not fail on `??`, optional chaining, or object spread syntax\n- the test suite compiles a temporary plugin bundle and fails if unsupported syntax survives bundling\n- the root manifest is for development import, while `build/release/manifest.json` is generated for distribution packaging\n- CSS is forced into inline HTML whenever possible, and flattening diagnostics are surfaced when selector or rule fidelity is reduced\n- CSS loading is now isolated from CSS inlining so future parser work can expand from one shared source-loading layer\n- style implementation is now isolated from selector matching so token fallback policy and declaration resolution can evolve without rewriting the merger\n- CSS-to-Figma reinterpretation is now isolated from DOM traversal so style translation policy can evolve without rewriting the design-plan tree mapper\n- Figma handoff preparation is now isolated from both interpretation and rendering so illegal or unsafe values can be normalized before the plugin touches the Figma runtime\n- frame appearance is no longer limited to fills; border strokes and box shadows are also preserved in the design plan and renderer\n- the design-plan layer now carries container layout hints and child placement hints separately so more CSS survives translation into Figma\n- the renderer no longer consumes the raw design plan directly; it consumes a sanitized `figmaTransfer` payload that drops unsupported image sources, normalizes min/max ranges, and clips illegal numeric values before Figma setters run\n- text nodes honor `max-width` during Figma rendering so long copy can wrap instead of expanding the root frame horizontally\n- Figma `min/max` sizing constraints are now applied only on eligible auto-layout nodes or auto-layout children to avoid runtime setter errors\n- the renderer now follows Figma-oriented auto-layout policy more closely: `NONE` frames skip auto-layout-only setters, and auto-layout frame children that use fill or stretch are forced onto Figma-compatible fixed axes\n",
+      "items": [
+        {
+          "marker": "-",
+          "text": "the plugin no longer includes sample input helpers",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "the plugin no longer includes browser or merged-output preview features",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "the plugin UI uses English-only copy",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "the plugin opens with a safe default size and then applies a content-based resize after load",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "the manifest permits remote image fetches so referenced image assets can be rendered",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "the plugin bundle is emitted with an `es2017` target so Figma code evaluation does not fail on `??`, optional chaining, or object spread syntax",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "the test suite compiles a temporary plugin bundle and fails if unsupported syntax survives bundling",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "the root manifest is for development import, while `build/release/manifest.json` is generated for distribution packaging",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "CSS is forced into inline HTML whenever possible, and flattening diagnostics are surfaced when selector or rule fidelity is reduced",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "CSS loading is now isolated from CSS inlining so future parser work can expand from one shared source-loading layer",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "style implementation is now isolated from selector matching so token fallback policy and declaration resolution can evolve without rewriting the merger",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "CSS-to-Figma reinterpretation is now isolated from DOM traversal so style translation policy can evolve without rewriting the design-plan tree mapper",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "Figma handoff preparation is now isolated from both interpretation and rendering so illegal or unsafe values can be normalized before the plugin touches the Figma runtime",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "frame appearance is no longer limited to fills; border strokes and box shadows are also preserved in the design plan and renderer",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "the design-plan layer now carries container layout hints and child placement hints separately so more CSS survives translation into Figma",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "the renderer no longer consumes the raw design plan directly; it consumes a sanitized `figmaTransfer` payload that drops unsupported image sources, normalizes min/max ranges, and clips illegal numeric values before Figma setters run",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "text nodes honor `max-width` during Figma rendering so long copy can wrap instead of expanding the root frame horizontally",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "Figma `min/max` sizing constraints are now applied only on eligible auto-layout nodes or auto-layout children to avoid runtime setter errors",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "the renderer now follows Figma-oriented auto-layout policy more closely: `NONE` frames skip auto-layout-only setters, and auto-layout frame children that use fill or stretch are forced onto Figma-compatible fixed axes",
+          "checked": null
+        }
+      ]
+    },
+    {
+      "id": "b000028",
+      "kind": "blank",
+      "start_line": 96,
+      "end_line": 96,
+      "raw": "\n"
+    },
+    {
+      "id": "b000029",
+      "kind": "heading",
+      "start_line": 97,
+      "end_line": 97,
+      "raw": "## Deployment\n",
+      "level": 2,
+      "title": "Deployment"
+    },
+    {
+      "id": "b000030",
+      "kind": "blank",
+      "start_line": 98,
+      "end_line": 98,
+      "raw": "\n"
+    },
+    {
+      "id": "b000031",
+      "kind": "paragraph",
+      "start_line": 99,
+      "end_line": 99,
+      "raw": "Figma publish preparation is documented in [publishing.md](/Volumes/Storage/Workspace/Product/Webgma/docs/publishing.md). The current setup aligns the manifest with Figma deployment requirements and prepares a packaged release folder without requiring manual path rewrites.\n"
+    },
+    {
+      "id": "b000032",
+      "kind": "blank",
+      "start_line": 100,
+      "end_line": 100,
+      "raw": "\n"
+    },
+    {
+      "id": "b000033",
+      "kind": "html",
+      "start_line": 101,
+      "end_line": 101,
+      "raw": "<!-- workspace-docs:readme:start -->\n"
+    },
+    {
+      "id": "b000034",
+      "kind": "heading",
+      "start_line": 102,
+      "end_line": 102,
+      "raw": "## Documentation entry points\n",
+      "level": 2,
+      "title": "Documentation entry points"
+    },
+    {
+      "id": "b000035",
+      "kind": "blank",
+      "start_line": 103,
+      "end_line": 103,
+      "raw": "\n"
+    },
+    {
+      "id": "b000036",
+      "kind": "list",
+      "start_line": 104,
+      "end_line": 107,
+      "raw": "- Human overview: this English `README.md`.\n- Agent instructions: [AGENT.md](AGENT.md).\n- Human documentation: [documentation index](docs/README.md).\n- Structured agent documentation: [agent index](docs/agent-index.json).\n",
+      "items": [
+        {
+          "marker": "-",
+          "text": "Human overview: this English `README.md`.",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "Agent instructions: [AGENT.md](AGENT.md).",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "Human documentation: [documentation index](docs/README.md).",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "Structured agent documentation: [agent index](docs/agent-index.json).",
+          "checked": null
+        }
+      ]
+    },
+    {
+      "id": "b000037",
+      "kind": "html",
+      "start_line": 108,
+      "end_line": 108,
+      "raw": "<!-- workspace-docs:readme:end -->\n"
+    }
+  ],
+  "outline": [
+    {
+      "block_id": "b000001",
+      "parent_id": null,
+      "level": 1,
+      "title": "Webgma",
+      "anchor": "webgma",
+      "start_line": 1
+    },
+    {
+      "block_id": "b000005",
+      "parent_id": "b000001",
+      "level": 2,
+      "title": "Current flow",
+      "anchor": "current-flow",
+      "start_line": 5
+    },
+    {
+      "block_id": "b000009",
+      "parent_id": "b000001",
+      "level": 2,
+      "title": "Repository layout",
+      "anchor": "repository-layout",
+      "start_line": 16
+    },
+    {
+      "block_id": "b000013",
+      "parent_id": "b000001",
+      "level": 2,
+      "title": "Supported scaffold scope",
+      "anchor": "supported-scaffold-scope",
+      "start_line": 39
+    },
+    {
+      "block_id": "b000021",
+      "parent_id": "b000001",
+      "level": 2,
+      "title": "Scripts",
+      "anchor": "scripts",
+      "start_line": 68
+    },
+    {
+      "block_id": "b000025",
+      "parent_id": "b000001",
+      "level": 2,
+      "title": "Notes",
+      "anchor": "notes",
+      "start_line": 75
+    },
+    {
+      "block_id": "b000029",
+      "parent_id": "b000001",
+      "level": 2,
+      "title": "Deployment",
+      "anchor": "deployment",
+      "start_line": 97
+    },
+    {
+      "block_id": "b000034",
+      "parent_id": "b000001",
+      "level": 2,
+      "title": "Documentation entry points",
+      "anchor": "documentation-entry-points",
+      "start_line": 102
+    }
+  ],
+  "indexes": {
+    "directive_candidates": [
+      {
+        "block_id": "b000007",
+        "line": 10,
+        "text": "4. The convert action stays permissive in both modes: HTML is required, CSS is optional.",
+        "basis": "lexical_match",
+        "context": "list"
+      },
+      {
+        "block_id": "b000019",
+        "line": 66,
+        "text": "The next implementation phase should expand selector coverage, improve cascade fidelity, and harden layout parity with browser rendering.",
+        "basis": "lexical_match",
+        "context": "paragraph"
+      },
+      {
+        "block_id": "b000023",
+        "line": 71,
+        "text": "- `npm run clean`: remove only this project's generated `build/` with Node.js; no Unix shell is required on Windows.",
+        "basis": "lexical_match",
+        "context": "list"
+      }
+    ],
+    "commands": [],
+    "links": [
+      {
+        "block_id": "b000031",
+        "label": "publishing.md",
+        "target": "/Volumes/Storage/Workspace/Product/Webgma/docs/publishing.md",
+        "kind": "relative",
+        "line": 99
+      },
+      {
+        "block_id": "b000036",
+        "label": "AGENT.md",
+        "target": "AGENT.md",
+        "kind": "relative",
+        "line": 105
+      },
+      {
+        "block_id": "b000036",
+        "label": "documentation index",
+        "target": "docs/README.md",
+        "kind": "relative",
+        "line": 106
+      },
+      {
+        "block_id": "b000036",
+        "label": "agent index",
+        "target": "docs/agent-index.json",
+        "kind": "relative",
+        "line": 107
+      }
+    ],
+    "tables": []
+  },
+  "provenance": {
+    "generator": "workspace-docs",
+    "version": "1.0.0",
+    "profile": "lossless-blocks-v1",
+    "derived": true
+  }
+}

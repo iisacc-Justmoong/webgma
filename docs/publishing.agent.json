@@ -1,0 +1,426 @@
+{
+  "format": "iisacc.agent-document",
+  "schema_version": 1,
+  "document_id": "urn:iisacc:document:dd520fa494e2c6de9f253ef3c8f83d6b5883c80632dbe3c46ad14a7906c874dc",
+  "project": {
+    "id": "urn:iisacc:project:Product%2F.Deprecated%2FWebgma",
+    "name": "Webgma",
+    "root": "Product/.Deprecated/Webgma",
+    "kind": "application"
+  },
+  "source": {
+    "path": "docs/publishing.md",
+    "sha256": "d8f57fcd36648ebce7e656011edc548d5da9406c16700a61a32f7c1ab9febc6c",
+    "bytes": 2005,
+    "line_count": 45,
+    "encoding": "utf-8",
+    "language": "ko"
+  },
+  "document": {
+    "title": "출판 체크리스트",
+    "role": "guide",
+    "authority": "markdown_source"
+  },
+  "blocks": [
+    {
+      "id": "b000001",
+      "kind": "html",
+      "start_line": 1,
+      "end_line": 1,
+      "raw": "<a id=\"publishing-checklist\"></a>\n"
+    },
+    {
+      "id": "b000002",
+      "kind": "blank",
+      "start_line": 2,
+      "end_line": 2,
+      "raw": "\n"
+    },
+    {
+      "id": "b000003",
+      "kind": "heading",
+      "start_line": 3,
+      "end_line": 3,
+      "raw": "# 출판 체크리스트\n",
+      "level": 1,
+      "title": "출판 체크리스트"
+    },
+    {
+      "id": "b000004",
+      "kind": "blank",
+      "start_line": 4,
+      "end_line": 4,
+      "raw": "\n"
+    },
+    {
+      "id": "b000005",
+      "kind": "html",
+      "start_line": 5,
+      "end_line": 5,
+      "raw": "<a id=\"what-this-project-prepares\"></a>\n"
+    },
+    {
+      "id": "b000006",
+      "kind": "blank",
+      "start_line": 6,
+      "end_line": 6,
+      "raw": "\n"
+    },
+    {
+      "id": "b000007",
+      "kind": "heading",
+      "start_line": 7,
+      "end_line": 7,
+      "raw": "## 이 프로젝트가 준비하는 것\n",
+      "level": 2,
+      "title": "이 프로젝트가 준비하는 것"
+    },
+    {
+      "id": "b000008",
+      "kind": "blank",
+      "start_line": 8,
+      "end_line": 8,
+      "raw": "\n"
+    },
+    {
+      "id": "b000009",
+      "kind": "list",
+      "start_line": 9,
+      "end_line": 11,
+      "raw": "- 로컬 개발 가져오기용 루트 [manifest.json](/Volumes/Storage/Workspace/Product/Webgma/manifest.json)\n- `npm run prepare:release` - `build/release/` 생성\n- 배포를 위한 상대 자산 경로가 있는 `build/release/` 내부의 릴리스 준비 `manifest.json`\n",
+      "items": [
+        {
+          "marker": "-",
+          "text": "로컬 개발 가져오기용 루트 [manifest.json](/Volumes/Storage/Workspace/Product/Webgma/manifest.json)",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "`npm run prepare:release` - `build/release/` 생성",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "배포를 위한 상대 자산 경로가 있는 `build/release/` 내부의 릴리스 준비 `manifest.json`",
+          "checked": null
+        }
+      ]
+    },
+    {
+      "id": "b000010",
+      "kind": "blank",
+      "start_line": 12,
+      "end_line": 12,
+      "raw": "\n"
+    },
+    {
+      "id": "b000011",
+      "kind": "html",
+      "start_line": 13,
+      "end_line": 13,
+      "raw": "<a id=\"pre-publish-checklist\"></a>\n"
+    },
+    {
+      "id": "b000012",
+      "kind": "blank",
+      "start_line": 14,
+      "end_line": 14,
+      "raw": "\n"
+    },
+    {
+      "id": "b000013",
+      "kind": "heading",
+      "start_line": 15,
+      "end_line": 15,
+      "raw": "## 사전 게시 체크리스트\n",
+      "level": 2,
+      "title": "사전 게시 체크리스트"
+    },
+    {
+      "id": "b000014",
+      "kind": "blank",
+      "start_line": 16,
+      "end_line": 16,
+      "raw": "\n"
+    },
+    {
+      "id": "b000015",
+      "kind": "list",
+      "start_line": 17,
+      "end_line": 30,
+      "raw": "1. Figma 데스크톱 앱을 사용하세요.\n2. 게시 계정에서 2단계 인증을 활성화합니다.\n3. `npm run prepare:release`를 실행합니다.\n4. 패키지된 양식을 확인하려면 Figma에서 `build/release/manifest.json`에서 릴리스 매니페스트를 가져옵니다.\n5. 매니페스트가 여전히 제품 동작과 일치하는지 확인합니다.\n   - `editorType`는 `figma`입니다.\n   - `documentAccess`는 `dynamic-page`입니다.\n   - `networkAccess`는 무제한 이미지 가져오기가 필요한 이유를 설명합니다.\n6. 커뮤니티 목록 자산 준비:\n   - 아이콘: 128 x 128px 권장\n   - 썸네일: 1920 x 1080px 권장\n   - 지원 연락처\n   - 이름, 태그라인, 설명, 카테고리\n7. Figma 데스크톱 앱의 `Plugins > Manage plugins`에서 게시하세요.\n",
+      "items": [
+        {
+          "marker": "1.",
+          "text": "Figma 데스크톱 앱을 사용하세요.",
+          "checked": null
+        },
+        {
+          "marker": "2.",
+          "text": "게시 계정에서 2단계 인증을 활성화합니다.",
+          "checked": null
+        },
+        {
+          "marker": "3.",
+          "text": "`npm run prepare:release`를 실행합니다.",
+          "checked": null
+        },
+        {
+          "marker": "4.",
+          "text": "패키지된 양식을 확인하려면 Figma에서 `build/release/manifest.json`에서 릴리스 매니페스트를 가져옵니다.",
+          "checked": null
+        },
+        {
+          "marker": "5.",
+          "text": "매니페스트가 여전히 제품 동작과 일치하는지 확인합니다.",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "`editorType`는 `figma`입니다.",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "`documentAccess`는 `dynamic-page`입니다.",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "`networkAccess`는 무제한 이미지 가져오기가 필요한 이유를 설명합니다.",
+          "checked": null
+        },
+        {
+          "marker": "6.",
+          "text": "커뮤니티 목록 자산 준비:",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "아이콘: 128 x 128px 권장",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "썸네일: 1920 x 1080px 권장",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "지원 연락처",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "이름, 태그라인, 설명, 카테고리",
+          "checked": null
+        },
+        {
+          "marker": "7.",
+          "text": "Figma 데스크톱 앱의 `Plugins > Manage plugins`에서 게시하세요.",
+          "checked": null
+        }
+      ]
+    },
+    {
+      "id": "b000016",
+      "kind": "blank",
+      "start_line": 31,
+      "end_line": 31,
+      "raw": "\n"
+    },
+    {
+      "id": "b000017",
+      "kind": "html",
+      "start_line": 32,
+      "end_line": 32,
+      "raw": "<a id=\"notes\"></a>\n"
+    },
+    {
+      "id": "b000018",
+      "kind": "blank",
+      "start_line": 33,
+      "end_line": 33,
+      "raw": "\n"
+    },
+    {
+      "id": "b000019",
+      "kind": "heading",
+      "start_line": 34,
+      "end_line": 34,
+      "raw": "## 메모\n",
+      "level": 2,
+      "title": "메모"
+    },
+    {
+      "id": "b000020",
+      "kind": "blank",
+      "start_line": 35,
+      "end_line": 35,
+      "raw": "\n"
+    },
+    {
+      "id": "b000021",
+      "kind": "list",
+      "start_line": 36,
+      "end_line": 37,
+      "raw": "- 플러그인 `id`는 의도적으로 여기에 하드 코딩되지 않았습니다. Figma는 플러그인 초안을 생성하거나 게시할 때 이를 할당합니다.\n- 이미지 가져오기 요구 사항이 좁아지면 제출하기 전에 `allowedDomains: [\"*\"]`를 제한된 목록으로 바꾸세요.\n",
+      "items": [
+        {
+          "marker": "-",
+          "text": "플러그인 `id`는 의도적으로 여기에 하드 코딩되지 않았습니다. Figma는 플러그인 초안을 생성하거나 게시할 때 이를 할당합니다.",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "이미지 가져오기 요구 사항이 좁아지면 제출하기 전에 `allowedDomains: [\"*\"]`를 제한된 목록으로 바꾸세요.",
+          "checked": null
+        }
+      ]
+    },
+    {
+      "id": "b000022",
+      "kind": "blank",
+      "start_line": 38,
+      "end_line": 38,
+      "raw": "\n"
+    },
+    {
+      "id": "b000023",
+      "kind": "html",
+      "start_line": 39,
+      "end_line": 39,
+      "raw": "<a id=\"official-references\"></a>\n"
+    },
+    {
+      "id": "b000024",
+      "kind": "blank",
+      "start_line": 40,
+      "end_line": 40,
+      "raw": "\n"
+    },
+    {
+      "id": "b000025",
+      "kind": "heading",
+      "start_line": 41,
+      "end_line": 41,
+      "raw": "## 공식 참고자료\n",
+      "level": 2,
+      "title": "공식 참고자료"
+    },
+    {
+      "id": "b000026",
+      "kind": "blank",
+      "start_line": 42,
+      "end_line": 42,
+      "raw": "\n"
+    },
+    {
+      "id": "b000027",
+      "kind": "list",
+      "start_line": 43,
+      "end_line": 45,
+      "raw": "- [플러그인 매니페스트 문서](https://developers.figma.com/docs/plugins/manifest/)\n- [문서 게시](https://developers.figma.com/docs/plugins/publishing/)\n- [커뮤니티 게시 가이드](https://help.figma.com/hc/en-us/articles/360042293394-Publish-plugins-to-the-Figma-Community)\n",
+      "items": [
+        {
+          "marker": "-",
+          "text": "[플러그인 매니페스트 문서](https://developers.figma.com/docs/plugins/manifest/)",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "[문서 게시](https://developers.figma.com/docs/plugins/publishing/)",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "[커뮤니티 게시 가이드](https://help.figma.com/hc/en-us/articles/360042293394-Publish-plugins-to-the-Figma-Community)",
+          "checked": null
+        }
+      ]
+    }
+  ],
+  "outline": [
+    {
+      "block_id": "b000003",
+      "parent_id": null,
+      "level": 1,
+      "title": "출판 체크리스트",
+      "anchor": "출판-체크리스트",
+      "start_line": 3
+    },
+    {
+      "block_id": "b000007",
+      "parent_id": "b000003",
+      "level": 2,
+      "title": "이 프로젝트가 준비하는 것",
+      "anchor": "이-프로젝트가-준비하는-것",
+      "start_line": 7
+    },
+    {
+      "block_id": "b000013",
+      "parent_id": "b000003",
+      "level": 2,
+      "title": "사전 게시 체크리스트",
+      "anchor": "사전-게시-체크리스트",
+      "start_line": 15
+    },
+    {
+      "block_id": "b000019",
+      "parent_id": "b000003",
+      "level": 2,
+      "title": "메모",
+      "anchor": "메모",
+      "start_line": 34
+    },
+    {
+      "block_id": "b000025",
+      "parent_id": "b000003",
+      "level": 2,
+      "title": "공식 참고자료",
+      "anchor": "공식-참고자료",
+      "start_line": 41
+    }
+  ],
+  "indexes": {
+    "directive_candidates": [],
+    "commands": [],
+    "links": [
+      {
+        "block_id": "b000009",
+        "label": "manifest.json",
+        "target": "/Volumes/Storage/Workspace/Product/Webgma/manifest.json",
+        "kind": "relative",
+        "line": 9
+      },
+      {
+        "block_id": "b000027",
+        "label": "플러그인 매니페스트 문서",
+        "target": "https://developers.figma.com/docs/plugins/manifest/",
+        "kind": "external",
+        "line": 43
+      },
+      {
+        "block_id": "b000027",
+        "label": "문서 게시",
+        "target": "https://developers.figma.com/docs/plugins/publishing/",
+        "kind": "external",
+        "line": 44
+      },
+      {
+        "block_id": "b000027",
+        "label": "커뮤니티 게시 가이드",
+        "target": "https://help.figma.com/hc/en-us/articles/360042293394-Publish-plugins-to-the-Figma-Community",
+        "kind": "external",
+        "line": 45
+      }
+    ],
+    "tables": []
+  },
+  "provenance": {
+    "generator": "workspace-docs",
+    "version": "1.0.0",
+    "profile": "lossless-blocks-v1",
+    "derived": true
+  }
+}
