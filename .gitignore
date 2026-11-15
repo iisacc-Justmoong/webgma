@@ -3,6 +3,7 @@
 
 /node_modules
 /build
+/resources/test-workspaces/
 /coverage
 npm-debug.log*
 yarn-debug.log*
@@ -11,3 +12,4 @@ yarn-error.log*
 .pnp.js
 
 .vscode/*
+resources/

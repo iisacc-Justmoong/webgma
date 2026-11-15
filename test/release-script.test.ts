@@ -1,6 +1,5 @@
 import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
+import { resolve } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import {
   createReleaseManifest,
@@ -28,7 +27,8 @@ describe("prepare-release script", () => {
   });
 
   it("creates a release folder with packaged assets and publishing guide", () => {
-    const rootDirectory = mkdtempSync(join(tmpdir(), "webgma-release-"));
+    mkdirSync(resolve("resources/test-workspaces"), { recursive: true });
+    const rootDirectory = mkdtempSync(resolve("resources/test-workspaces/webgma-release-"));
 
     temporaryDirectories.push(rootDirectory);
     mkdirSync(resolve(rootDirectory, "build/plugin"), { recursive: true });

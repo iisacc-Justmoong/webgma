@@ -1,6 +1,5 @@
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { resolve } from "node:path";
 import { build } from "esbuild";
 import ts from "typescript";
 import { describe, expect, it } from "vitest";
@@ -9,9 +8,8 @@ import { getPluginBuildConfig } from "../scripts/plugin-build-config.mjs";
 describe("plugin build compatibility", () => {
   it("emits bundle syntax that Figma can parse", async () => {
     const rootDirectory = process.cwd();
-    const temporaryDirectory = mkdtempSync(
-      join(tmpdir(), "webgma-plugin-build-")
-    );
+    mkdirSync(resolve(rootDirectory, "build"), { recursive: true });
+    const temporaryDirectory = mkdtempSync(resolve(rootDirectory, "build/webgma-plugin-test-"));
     const outputCodePath = resolve(temporaryDirectory, "code.js");
 
     try {

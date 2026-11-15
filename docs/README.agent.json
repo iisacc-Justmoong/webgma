@@ -10,9 +10,9 @@
   },
   "source": {
     "path": "docs/README.md",
-    "sha256": "f1318de5b3aaa5413eca8f0d5c45527ec64923f17319e7f8069d7cd1c7f81786",
-    "bytes": 688,
-    "line_count": 15,
+    "sha256": "817cc860c878ff9c26143c6f2f7aafad8ff5a0b7db445191d6d5c73586a1a7f4",
+    "bytes": 765,
+    "line_count": 16,
     "encoding": "utf-8",
     "language": "en"
   },
@@ -79,8 +79,8 @@
       "id": "b000008",
       "kind": "table",
       "start_line": 8,
-      "end_line": 14,
-      "raw": "| Document | Agent JSON |\n| --- | --- |\n| [`AGENT.md`](../AGENT.md) | [JSON](entrypoints/AGENT.agent.json) |\n| [`README.md`](../README.md) | [JSON](entrypoints/README.agent.json) |\n| [`docs/architecture.md`](architecture.md) | [JSON](architecture.agent.json) |\n| [`docs/documentation-structure.md`](documentation-structure.md) | [JSON](documentation-structure.agent.json) |\n| [`docs/publishing.md`](publishing.md) | [JSON](publishing.agent.json) |\n",
+      "end_line": 15,
+      "raw": "| Document | Agent JSON |\n| --- | --- |\n| [`AGENT.md`](../AGENT.md) | [JSON](entrypoints/AGENT.agent.json) |\n| [`README.md`](../README.md) | [JSON](entrypoints/README.agent.json) |\n| [`docs/BuildLayout.md`](BuildLayout.md) | [JSON](BuildLayout.agent.json) |\n| [`docs/architecture.md`](architecture.md) | [JSON](architecture.agent.json) |\n| [`docs/documentation-structure.md`](documentation-structure.md) | [JSON](documentation-structure.agent.json) |\n| [`docs/publishing.md`](publishing.md) | [JSON](publishing.agent.json) |\n",
       "columns": [
         "Document",
         "Agent JSON"
@@ -93,6 +93,10 @@
         [
           "[`README.md`](../README.md)",
           "[JSON](entrypoints/README.agent.json)"
+        ],
+        [
+          "[`docs/BuildLayout.md`](BuildLayout.md)",
+          "[JSON](BuildLayout.agent.json)"
         ],
         [
           "[`docs/architecture.md`](architecture.md)",
@@ -111,8 +115,8 @@
     {
       "id": "b000009",
       "kind": "html",
-      "start_line": 15,
-      "end_line": 15,
+      "start_line": 16,
+      "end_line": 16,
       "raw": "<!-- workspace-docs:document-map:end -->\n"
     }
   ],
@@ -168,45 +172,59 @@
       },
       {
         "block_id": "b000008",
+        "label": "`docs/BuildLayout.md`",
+        "target": "BuildLayout.md",
+        "kind": "relative",
+        "line": 12
+      },
+      {
+        "block_id": "b000008",
+        "label": "JSON",
+        "target": "BuildLayout.agent.json",
+        "kind": "relative",
+        "line": 12
+      },
+      {
+        "block_id": "b000008",
         "label": "`docs/architecture.md`",
         "target": "architecture.md",
         "kind": "relative",
-        "line": 12
+        "line": 13
       },
       {
         "block_id": "b000008",
         "label": "JSON",
         "target": "architecture.agent.json",
         "kind": "relative",
-        "line": 12
+        "line": 13
       },
       {
         "block_id": "b000008",
         "label": "`docs/documentation-structure.md`",
         "target": "documentation-structure.md",
         "kind": "relative",
-        "line": 13
+        "line": 14
       },
       {
         "block_id": "b000008",
         "label": "JSON",
         "target": "documentation-structure.agent.json",
         "kind": "relative",
-        "line": 13
+        "line": 14
       },
       {
         "block_id": "b000008",
         "label": "`docs/publishing.md`",
         "target": "publishing.md",
         "kind": "relative",
-        "line": 14
+        "line": 15
       },
       {
         "block_id": "b000008",
         "label": "JSON",
         "target": "publishing.agent.json",
         "kind": "relative",
-        "line": 14
+        "line": 15
       }
     ],
     "tables": [
@@ -224,6 +242,10 @@
           [
             "[`README.md`](../README.md)",
             "[JSON](entrypoints/README.agent.json)"
+          ],
+          [
+            "[`docs/BuildLayout.md`](BuildLayout.md)",
+            "[JSON](BuildLayout.agent.json)"
           ],
           [
             "[`docs/architecture.md`](architecture.md)",

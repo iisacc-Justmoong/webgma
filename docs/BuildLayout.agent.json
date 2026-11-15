@@ -1,0 +1,71 @@
+{
+  "format": "iisacc.agent-document",
+  "schema_version": 1,
+  "document_id": "urn:iisacc:document:420bac3bf3d85eb29d7e38995813a0e02a97af76f5016fddbcb1e515654d9a2f",
+  "project": {
+    "id": "urn:iisacc:project:Product%2F.Deprecated%2FWebgma",
+    "name": "Webgma",
+    "root": "Product/.Deprecated/Webgma",
+    "kind": "application"
+  },
+  "source": {
+    "path": "docs/BuildLayout.md",
+    "sha256": "d4f15a13e8b5ec001157a43c67186f35929b1e15a51092543bc62d512f4b71f1",
+    "bytes": 467,
+    "line_count": 8,
+    "encoding": "utf-8",
+    "language": "en"
+  },
+  "document": {
+    "title": "Build and test layout",
+    "role": "guide",
+    "authority": "markdown_source"
+  },
+  "blocks": [
+    {
+      "id": "b000001",
+      "kind": "heading",
+      "start_line": 1,
+      "end_line": 1,
+      "raw": "# Build and test layout\n",
+      "level": 1,
+      "title": "Build and test layout"
+    },
+    {
+      "id": "b000002",
+      "kind": "blank",
+      "start_line": 2,
+      "end_line": 2,
+      "raw": "\n"
+    },
+    {
+      "id": "b000003",
+      "kind": "paragraph",
+      "start_line": 3,
+      "end_line": 8,
+      "raw": "The Figma plugin bundle is the default build target and is written to\n`build/plugin/`. The optional release packaging command remains explicit.\nFixture source data for cleanup and packaging tests is created under\n`resources/test-workspaces/` and removed afterward. The syntax-compatibility\ncheck builds its temporary plugin bundle under `build/` and removes it after\ninspection. Neither build nor these tests starts Figma or runs the plugin.\n"
+    }
+  ],
+  "outline": [
+    {
+      "block_id": "b000001",
+      "parent_id": null,
+      "level": 1,
+      "title": "Build and test layout",
+      "anchor": "build-and-test-layout",
+      "start_line": 1
+    }
+  ],
+  "indexes": {
+    "directive_candidates": [],
+    "commands": [],
+    "links": [],
+    "tables": []
+  },
+  "provenance": {
+    "generator": "workspace-docs",
+    "version": "1.0.0",
+    "profile": "lossless-blocks-v1",
+    "derived": true
+  }
+}

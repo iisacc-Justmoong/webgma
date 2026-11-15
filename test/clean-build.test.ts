@@ -9,8 +9,8 @@ afterEach(async () => {
 });
 
 test("cleaning removes generated output and preserves source files", async () => {
-  await mkdir("build", { recursive: true });
-  const root = await mkdtemp(resolve("build", "clean-test-"));
+  await mkdir("resources/test-workspaces", { recursive: true });
+  const root = await mkdtemp(resolve("resources/test-workspaces", "clean-test-"));
   roots.push(root);
   await mkdir(resolve(root, "build"));
   await writeFile(resolve(root, "build", "old.js"), "generated");
