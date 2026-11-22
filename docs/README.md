@@ -5,12 +5,10 @@
 
 Markdown is the maintained human source. Agent JSON is a structured, source-traceable projection.
 
-| Document | Agent JSON |
-| --- | --- |
-| [`AGENT.md`](../AGENT.md) | [JSON](entrypoints/AGENT.agent.json) |
-| [`README.md`](../README.md) | [JSON](entrypoints/README.agent.json) |
-| [`docs/BuildLayout.md`](BuildLayout.md) | [JSON](BuildLayout.agent.json) |
-| [`docs/architecture.md`](architecture.md) | [JSON](architecture.agent.json) |
-| [`docs/documentation-structure.md`](documentation-structure.md) | [JSON](documentation-structure.agent.json) |
-| [`docs/publishing.md`](publishing.md) | [JSON](publishing.agent.json) |
+- Document: [`AGENT.md`](../AGENT.md); Agent JSON: [JSON](entrypoints/AGENT.agent.json)
+- Document: [`README.md`](../README.md); Agent JSON: [JSON](entrypoints/README.agent.json)
+- Document: [`docs/BuildLayout.md`](BuildLayout.md); Agent JSON: [JSON](BuildLayout.agent.json)
+- Document: [`docs/architecture.md`](architecture.md); Agent JSON: [JSON](architecture.agent.json)
+- Document: [`docs/documentation-structure.md`](documentation-structure.md); Agent JSON: [JSON](documentation-structure.agent.json)
+- Document: [`docs/publishing.md`](publishing.md); Agent JSON: [JSON](publishing.agent.json)
 <!-- workspace-docs:document-map:end -->

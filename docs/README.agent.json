@@ -10,9 +10,9 @@
   },
   "source": {
     "path": "docs/README.md",
-    "sha256": "817cc860c878ff9c26143c6f2f7aafad8ff5a0b7db445191d6d5c73586a1a7f4",
-    "bytes": 765,
-    "line_count": 16,
+    "sha256": "e9ee47bd55f37ed8db76808b15f3e28ff8659b3a5ec0e40530b57ed3009cc789",
+    "bytes": 839,
+    "line_count": 14,
     "encoding": "utf-8",
     "language": "en"
   },
@@ -77,46 +77,48 @@
     },
     {
       "id": "b000008",
-      "kind": "table",
       "start_line": 8,
-      "end_line": 15,
-      "raw": "| Document | Agent JSON |\n| --- | --- |\n| [`AGENT.md`](../AGENT.md) | [JSON](entrypoints/AGENT.agent.json) |\n| [`README.md`](../README.md) | [JSON](entrypoints/README.agent.json) |\n| [`docs/BuildLayout.md`](BuildLayout.md) | [JSON](BuildLayout.agent.json) |\n| [`docs/architecture.md`](architecture.md) | [JSON](architecture.agent.json) |\n| [`docs/documentation-structure.md`](documentation-structure.md) | [JSON](documentation-structure.agent.json) |\n| [`docs/publishing.md`](publishing.md) | [JSON](publishing.agent.json) |\n",
-      "columns": [
-        "Document",
-        "Agent JSON"
-      ],
-      "rows": [
-        [
-          "[`AGENT.md`](../AGENT.md)",
-          "[JSON](entrypoints/AGENT.agent.json)"
-        ],
-        [
-          "[`README.md`](../README.md)",
-          "[JSON](entrypoints/README.agent.json)"
-        ],
-        [
-          "[`docs/BuildLayout.md`](BuildLayout.md)",
-          "[JSON](BuildLayout.agent.json)"
-        ],
-        [
-          "[`docs/architecture.md`](architecture.md)",
-          "[JSON](architecture.agent.json)"
-        ],
-        [
-          "[`docs/documentation-structure.md`](documentation-structure.md)",
-          "[JSON](documentation-structure.agent.json)"
-        ],
-        [
-          "[`docs/publishing.md`](publishing.md)",
-          "[JSON](publishing.agent.json)"
-        ]
+      "end_line": 13,
+      "raw": "- Document: [`AGENT.md`](../AGENT.md); Agent JSON: [JSON](entrypoints/AGENT.agent.json)\n- Document: [`README.md`](../README.md); Agent JSON: [JSON](entrypoints/README.agent.json)\n- Document: [`docs/BuildLayout.md`](BuildLayout.md); Agent JSON: [JSON](BuildLayout.agent.json)\n- Document: [`docs/architecture.md`](architecture.md); Agent JSON: [JSON](architecture.agent.json)\n- Document: [`docs/documentation-structure.md`](documentation-structure.md); Agent JSON: [JSON](documentation-structure.agent.json)\n- Document: [`docs/publishing.md`](publishing.md); Agent JSON: [JSON](publishing.agent.json)\n",
+      "kind": "list",
+      "items": [
+        {
+          "marker": "-",
+          "text": "Document: [`AGENT.md`](../AGENT.md); Agent JSON: [JSON](entrypoints/AGENT.agent.json)",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "Document: [`README.md`](../README.md); Agent JSON: [JSON](entrypoints/README.agent.json)",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "Document: [`docs/BuildLayout.md`](BuildLayout.md); Agent JSON: [JSON](BuildLayout.agent.json)",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "Document: [`docs/architecture.md`](architecture.md); Agent JSON: [JSON](architecture.agent.json)",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "Document: [`docs/documentation-structure.md`](documentation-structure.md); Agent JSON: [JSON](documentation-structure.agent.json)",
+          "checked": null
+        },
+        {
+          "marker": "-",
+          "text": "Document: [`docs/publishing.md`](publishing.md); Agent JSON: [JSON](publishing.agent.json)",
+          "checked": null
+        }
       ]
     },
     {
       "id": "b000009",
       "kind": "html",
-      "start_line": 16,
-      "end_line": 16,
+      "start_line": 14,
+      "end_line": 14,
       "raw": "<!-- workspace-docs:document-map:end -->\n"
     }
   ],
@@ -147,121 +149,87 @@
         "label": "`AGENT.md`",
         "target": "../AGENT.md",
         "kind": "relative",
-        "line": 10
+        "line": 8
       },
       {
         "block_id": "b000008",
         "label": "JSON",
         "target": "entrypoints/AGENT.agent.json",
         "kind": "relative",
-        "line": 10
+        "line": 8
       },
       {
         "block_id": "b000008",
         "label": "`README.md`",
         "target": "../README.md",
         "kind": "relative",
-        "line": 11
+        "line": 9
       },
       {
         "block_id": "b000008",
         "label": "JSON",
         "target": "entrypoints/README.agent.json",
         "kind": "relative",
-        "line": 11
+        "line": 9
       },
       {
         "block_id": "b000008",
         "label": "`docs/BuildLayout.md`",
         "target": "BuildLayout.md",
         "kind": "relative",
-        "line": 12
+        "line": 10
       },
       {
         "block_id": "b000008",
         "label": "JSON",
         "target": "BuildLayout.agent.json",
         "kind": "relative",
-        "line": 12
+        "line": 10
       },
       {
         "block_id": "b000008",
         "label": "`docs/architecture.md`",
         "target": "architecture.md",
         "kind": "relative",
-        "line": 13
+        "line": 11
       },
       {
         "block_id": "b000008",
         "label": "JSON",
         "target": "architecture.agent.json",
         "kind": "relative",
-        "line": 13
+        "line": 11
       },
       {
         "block_id": "b000008",
         "label": "`docs/documentation-structure.md`",
         "target": "documentation-structure.md",
         "kind": "relative",
-        "line": 14
+        "line": 12
       },
       {
         "block_id": "b000008",
         "label": "JSON",
         "target": "documentation-structure.agent.json",
         "kind": "relative",
-        "line": 14
+        "line": 12
       },
       {
         "block_id": "b000008",
         "label": "`docs/publishing.md`",
         "target": "publishing.md",
         "kind": "relative",
-        "line": 15
+        "line": 13
       },
       {
         "block_id": "b000008",
         "label": "JSON",
         "target": "publishing.agent.json",
         "kind": "relative",
-        "line": 15
+        "line": 13
       }
     ],
-    "tables": [
-      {
-        "block_id": "b000008",
-        "columns": [
-          "Document",
-          "Agent JSON"
-        ],
-        "rows": [
-          [
-            "[`AGENT.md`](../AGENT.md)",
-            "[JSON](entrypoints/AGENT.agent.json)"
-          ],
-          [
-            "[`README.md`](../README.md)",
-            "[JSON](entrypoints/README.agent.json)"
-          ],
-          [
-            "[`docs/BuildLayout.md`](BuildLayout.md)",
-            "[JSON](BuildLayout.agent.json)"
-          ],
-          [
-            "[`docs/architecture.md`](architecture.md)",
-            "[JSON](architecture.agent.json)"
-          ],
-          [
-            "[`docs/documentation-structure.md`](documentation-structure.md)",
-            "[JSON](documentation-structure.agent.json)"
-          ],
-          [
-            "[`docs/publishing.md`](publishing.md)",
-            "[JSON](publishing.agent.json)"
-          ]
-        ]
-      }
-    ]
+    "tables": []
   },
   "provenance": {
     "generator": "workspace-docs",
