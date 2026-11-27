@@ -10,7 +10,7 @@
   },
   "source": {
     "path": "docs/README.md",
-    "sha256": "e9ee47bd55f37ed8db76808b15f3e28ff8659b3a5ec0e40530b57ed3009cc789",
+    "sha256": "4d14a4b0596d1b42a6487a8e0c3d5db1deceac94d859c2b430c6a5edb492b131",
     "bytes": 839,
     "line_count": 14,
     "encoding": "utf-8",
@@ -79,17 +79,17 @@
       "id": "b000008",
       "start_line": 8,
       "end_line": 13,
-      "raw": "- Document: [`AGENT.md`](../AGENT.md); Agent JSON: [JSON](entrypoints/AGENT.agent.json)\n- Document: [`README.md`](../README.md); Agent JSON: [JSON](entrypoints/README.agent.json)\n- Document: [`docs/BuildLayout.md`](BuildLayout.md); Agent JSON: [JSON](BuildLayout.agent.json)\n- Document: [`docs/architecture.md`](architecture.md); Agent JSON: [JSON](architecture.agent.json)\n- Document: [`docs/documentation-structure.md`](documentation-structure.md); Agent JSON: [JSON](documentation-structure.agent.json)\n- Document: [`docs/publishing.md`](publishing.md); Agent JSON: [JSON](publishing.agent.json)\n",
+      "raw": "- Document: [`AGENT.md`](../AGENT.md); Agent JSON: [JSON](Entrypoints/AGENT.agent.json)\n- Document: [`README.md`](../README.md); Agent JSON: [JSON](Entrypoints/README.agent.json)\n- Document: [`docs/BuildLayout.md`](BuildLayout.md); Agent JSON: [JSON](BuildLayout.agent.json)\n- Document: [`docs/architecture.md`](architecture.md); Agent JSON: [JSON](architecture.agent.json)\n- Document: [`docs/documentation-structure.md`](documentation-structure.md); Agent JSON: [JSON](documentation-structure.agent.json)\n- Document: [`docs/publishing.md`](publishing.md); Agent JSON: [JSON](publishing.agent.json)\n",
       "kind": "list",
       "items": [
         {
           "marker": "-",
-          "text": "Document: [`AGENT.md`](../AGENT.md); Agent JSON: [JSON](entrypoints/AGENT.agent.json)",
+          "text": "Document: [`AGENT.md`](../AGENT.md); Agent JSON: [JSON](Entrypoints/AGENT.agent.json)",
           "checked": null
         },
         {
           "marker": "-",
-          "text": "Document: [`README.md`](../README.md); Agent JSON: [JSON](entrypoints/README.agent.json)",
+          "text": "Document: [`README.md`](../README.md); Agent JSON: [JSON](Entrypoints/README.agent.json)",
           "checked": null
         },
         {
@@ -154,7 +154,7 @@
       {
         "block_id": "b000008",
         "label": "JSON",
-        "target": "entrypoints/AGENT.agent.json",
+        "target": "Entrypoints/AGENT.agent.json",
         "kind": "relative",
         "line": 8
       },
@@ -168,7 +168,7 @@
       {
         "block_id": "b000008",
         "label": "JSON",
-        "target": "entrypoints/README.agent.json",
+        "target": "Entrypoints/README.agent.json",
         "kind": "relative",
         "line": 9
       },
